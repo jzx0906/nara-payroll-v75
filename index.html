@@ -1,0 +1,757 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>奈良県 給与計算アプリ V75</title>
+<style>
+:root{--bg:#f5f7fa;--card:#fff;--ink:#172033;--muted:#667085;--line:#d9dee7;--accent:#2457d6;--good:#0b7a45;--warn:#9a6500;--bad:#b42318}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue","Noto Sans JP",Arial,sans-serif}
+header{position:sticky;top:0;z-index:5;background:#172033;color:#fff;padding:14px 16px;box-shadow:0 2px 8px #0002}
+header h1{font-size:18px;margin:0 0 3px}header small{opacity:.8}
+nav{display:flex;gap:6px;overflow:auto;padding:10px;background:#fff;border-bottom:1px solid var(--line)}
+nav button,nav .navTab{white-space:nowrap;border:1px solid var(--line);background:#fff;border-radius:10px;padding:9px 12px;font-weight:700;color:var(--ink);text-decoration:none;display:inline-block}nav button.active,nav .navTab.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+nav button.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+main{max-width:1100px;margin:auto;padding:12px}
+section{display:none}.activeSection{display:block}section:target{display:block}body:not(:has(section:target)) main>section:first-child{display:block}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin:10px 0;box-shadow:0 1px 3px #00000008}
+h2{font-size:17px;margin:0 0 12px}h3{font-size:15px;margin:16px 0 8px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px}
+label{display:block;font-size:12px;color:var(--muted);font-weight:700;margin-bottom:4px}
+input,select,textarea{width:100%;font:inherit;border:1px solid #cbd2dc;border-radius:9px;padding:10px;background:#fff}
+button{font:inherit;cursor:pointer}.btn{border:0;background:var(--accent);color:#fff;border-radius:10px;padding:10px 13px;font-weight:800}.btn.secondary{background:#eef2ff;color:#173a9c}.btn.gray{background:#667085}.btn.danger{background:#b42318}
+.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:9px}.kpi{border:1px solid var(--line);border-radius:12px;padding:10px}.kpi b{display:block;font-size:18px;margin-top:3px}.kpi span{font-size:11px;color:var(--muted)}
+table{width:100%;border-collapse:collapse;font-size:12px;min-width:720px}th,td{border-bottom:1px solid var(--line);padding:8px;text-align:right;white-space:nowrap}th:first-child,td:first-child{text-align:left}thead{background:#f0f3f8}
+.tableWrap{overflow:auto;border:1px solid var(--line);border-radius:10px}.note{font-size:12px;color:var(--muted);line-height:1.65}.ok{color:var(--good);font-weight:800}.warn{color:var(--warn);font-weight:800}.bad{color:var(--bad);font-weight:800}
+.slip{max-width:800px;margin:auto;border:2px solid #222;padding:22px;background:#fff}.slip h2{text-align:center;font-size:21px}.slip .company{text-align:right;font-size:12px}.slip table{min-width:0}.slip th,.slip td{border:1px solid #aaa}.slip .net{font-size:20px;font-weight:900}
+@media print{header,nav,.noPrint{display:none!important}body{background:#fff}.card{border:0;box-shadow:none}.slip{border:2px solid #000;page-break-inside:avoid}}
+button.danger{background:#b42318!important;color:#fff!important;border-color:#b42318!important}.warn{padding:10px;border-radius:8px;background:#fff4e5}.ok{padding:10px;border-radius:8px;background:#eaf7ee}</style>
+<link rel="manifest" href="./manifest.webmanifest">
+<meta name="theme-color" content="#172033">
+</head>
+<body>
+<header><h1>奈良県 給与計算アプリ V75</h1><small>V74.2ベース｜総合労務・給与管理システム</small></header>
+<nav id="nav">
+<a class="navTab" data-s="calc" href="#calc">給与計算</a><a class="navTab" data-s="dashboard" href="#dashboard">V74 ダッシュボード</a><a class="navTab" data-s="labor" href="#labor">V64 36協定</a><a class="navTab" data-s="socialm" href="#socialm">V65-66 社保</a><a class="navTab" data-s="bonusm" href="#bonusm">V67 賞与</a><a class="navTab" data-s="bank" href="#bank">V68 振込</a><a class="navTab" data-s="taxdocs" href="#taxdocs">V69-70 税務</a><a class="navTab" data-s="privacy" href="#privacy">V71-73 管理</a><a class="navTab" data-s="dataManage" href="#dataManage">データ管理</a><a class="navTab" data-s="attendance" href="#attendance">月間勤怠</a><a class="navTab" data-s="paidleave" href="#paidleave">有給休暇</a><a class="navTab" data-s="calendar" href="#calendar">勤務カレンダー</a><a class="navTab" data-s="timecard" href="#timecard">タイムカード</a><a class="navTab" data-s="ledger" href="#ledger">V50 給与台帳</a>
+<a class="navTab" data-s="social" href="#social">V51 社会保険</a><a class="navTab" data-s="tax" href="#tax">V52 源泉税</a>
+<a class="navTab" data-s="slip" href="#slip">V53 給与明細</a><a class="navTab" data-s="annual" href="#annual">V54 年間台帳</a>
+<a class="navTab" data-s="yearend" href="#yearend">V55 年末調整</a><a class="navTab" data-s="settings" href="#settings">会社設定</a>
+</nav>
+<main>
+<section id="calc">
+<div class="card"><h2>給与計算・保存｜V74.2統合版</h2>
+<div class="grid">
+<div><label>給与年月</label><input id="payMonth" type="month"></div>
+<div><label>従業員</label><select id="emp"></select></div>
+<div><label>給与方式</label><select id="payMethod"><option value="monthly">月給</option><option value="hourly">時給</option></select></div>
+<div><label>基本給（月給）</label><input id="base" type="number" min="0"></div>
+<div><label>時給</label><input id="hourly" type="number" min="0" step="1"></div>
+<div><label>通常時間</label><input id="normalHours" type="number" min="0" step="0.01" value="0"></div>
+<div><label>時間外時間（25%）</label><input id="overtimeHours" type="number" min="0" step="0.01" value="0"></div>
+<div><label>月60時間超の時間外（自動分離）</label><input id="over60Hours" type="number" min="0" step="0.01" value="0" readonly></div>
+<div><label>深夜時間（25%）</label><input id="nightHours" type="number" min="0" step="0.01" value="0"></div>
+<div><label>深夜＋時間外（50%）</label><input id="nightOverHours" type="number" min="0" step="0.01" value="0"></div>
+<div><label>法定休日時間（35%）</label><input id="holidayHours" type="number" min="0" step="0.01" value="0"></div>
+<div><label>通勤手当</label><input id="commute" type="number" min="0"></div>
+<div><label>各種手当</label><input id="allow" type="number" min="0"></div>
+<div><label>その他支給</label><input id="other" type="number" min="0"></div>
+<div><label>標準報酬月額</label><select id="std"></select></div>
+<div><label>住民税</label><input id="resident" type="number" min="0"></div>
+<div><label>源泉税区分</label><select id="taxType"><option value="kou">甲欄</option><option value="otsu">乙欄</option><option value="hei">丙欄（日額）</option></select></div>
+<div><label>配偶者</label><select id="spouse"><option value="0">なし</option><option value="1">あり</option></select></div>
+<div><label>扶養親族等の数</label><input id="deps" type="number" min="0" max="20" value="0"></div>
+<div><label>賞与</label><input id="bonus" type="number" min="0" value="0"></div>
+<div><label>雇用保険率</label><input id="empRate" type="number" step="0.001" value="0.5"></div>
+</div>
+<div class="actions"><button class="btn" onclick="calculate(true)">計算・保存・明細作成</button><button class="btn secondary" onclick="calculate(false)">計算のみ</button></div>
+<div id="calcResult"></div>
+<p class="note">時間外25%、深夜25%、法定休日35%を基本とし、月60時間を超える時間外は50%として自動分離します。深夜の時間外、休日の深夜、代替休暇、就業規則による上乗せ等の複雑なケースは別途確認してください。</p>
+</div>
+</section>
+
+
+
+<div class="card"><h2>V59｜従業員別勤務条件</h2>
+<div class="grid">
+<div><label>従業員</label><select id="wsEmp"></select></div>
+<div><label>勤務形態</label><select id="wsType"><option value="standard">通常勤務</option><option value="variable">変形労働時間制等（手動確認）</option></select></div>
+<div><label>1日の所定労働時間</label><input id="wsDaily" type="number" min="0" step="0.25" value="8"></div>
+<div><label>週の所定労働時間</label><input id="wsWeekly" type="number" min="0" step="0.25" value="40"></div>
+<div><label>所定休憩（分）</label><input id="wsBreak" type="number" min="0" value="60"></div>
+<div><label>始業時刻</label><input id="wsStart" type="time" value="09:00"></div>
+<div><label>終業時刻</label><input id="wsEnd" type="time" value="18:00"></div>
+</div>
+<div class="actions"><button class="btn" onclick="saveWorkSetting()">勤務条件を保存</button><button class="btn secondary" onclick="loadWorkSetting()">読み込み</button></div>
+<div id="wsResult"></div>
+<p class="note">通常勤務では、所定労働時間と法定労働時間を分けて管理します。変形労働時間制等は複雑な法定時間外判定があるため、V59では手動確認モードとして扱います。</p>
+</div>
+
+
+
+<section id="attendance">
+<div class="card"><h2>V62｜月間勤怠一覧</h2>
+<div class="grid">
+<div><label>対象月</label><input id="attMonth" type="month"></div>
+<div><label>従業員</label><select id="attEmp"></select></div>
+</div>
+<div class="actions"><button class="btn" onclick="renderAttendance()">勤怠集計</button><button class="btn secondary" onclick="exportAttendanceCSV()">CSV出力</button></div>
+<div id="attSummary"></div>
+<div id="attTable"></div>
+<p class="note">V62はタイムカード・勤務カレンダー・有給記録を突合し、月間の勤務状況を一覧化します。厚生労働省のガイドラインでは、労働日ごとの始業・終業時刻を確認・記録し、賃金台帳には労働日数、労働時間数、休日・時間外・深夜労働時間数等を適正に記入することが示されています。citeturn0search0turn0search1</p>
+</div>
+</section>
+<section id="paidleave">
+<div class="card"><h2>V61｜年次有給休暇管理</h2>
+<div class="grid">
+<div><label>従業員</label><select id="plEmp"></select></div>
+<div><label>雇入日</label><input id="plHire" type="date"></div>
+<div><label>基準日</label><input id="plBase" type="date"></div>
+<div><label>付与日数</label><input id="plGrant" type="number" min="0" step="0.5" value="10"></div>
+<div><label>繰越日数</label><input id="plCarry" type="number" min="0" step="0.5" value="0"></div>
+<div><label>当年度取得日数</label><input id="plUsed" type="number" min="0" step="0.5" value="0"></div>
+</div>
+<div class="actions"><button class="btn" onclick="savePaidLeaveBalance()">付与・残日数を保存</button><button class="btn secondary" onclick="autoPaidLeave()">法定付与日数を判定</button></div>
+<div id="plResult"></div>
+</div>
+
+<div class="card"><h2>有給取得記録</h2>
+<div class="grid">
+<div><label>取得日</label><input id="plDate" type="date"></div>
+<div><label>従業員</label><select id="plRecordEmp"></select></div>
+<div><label>取得日数</label><input id="plDays" type="number" min="0.5" step="0.5" value="1"></div>
+<div><label>区分</label><select id="plKind"><option value="paid">本人取得</option><option value="planned">計画年休</option><option value="employer">時季指定</option></select></div>
+<div><label>メモ</label><input id="plMemo"></div>
+</div>
+<div class="actions"><button class="btn" onclick="savePaidLeaveRecord()">取得を保存</button></div>
+<div id="plRecords"></div>
+</div>
+
+<div class="card"><h2>年次有給休暇管理簿</h2>
+<div class="grid"><div><label>従業員</label><select id="plViewEmp"></select></div><div><label>対象年</label><input id="plYear" type="number" value="2026"></div></div>
+<div class="actions"><button class="btn" onclick="renderPaidLeave()">管理簿を表示</button><button class="btn secondary" onclick="exportPaidLeaveCSV()">CSV出力</button></div>
+<div id="plLedger"></div>
+<p class="note">年次有給休暇管理簿は、基準日・取得日数・取得時季を管理するためのものです。厚生労働省資料では、労働者ごとに作成し、年休を与えた期間中および期間満了後3年間保存することとされています。</p>
+</div>
+</section>
+<section id="calendar">
+<div class="card"><h2>V60｜勤務シフト・休日カレンダー</h2>
+<div class="grid">
+<div><label>対象日</label><input id="calDate" type="date"></div>
+<div><label>従業員</label><select id="calEmp"></select></div>
+<div><label>区分</label><select id="calType">
+<option value="work">勤務予定</option><option value="scheduled_off">所定休日</option>
+<option value="statutory_off">法定休日</option><option value="holiday">祝日</option>
+<option value="paid_leave">有給休暇</option><option value="absence">欠勤</option>
+<option value="late">遅刻</option><option value="early_leave">早退</option>
+</select></div>
+<div><label>予定始業</label><input id="calIn" type="time" value="09:00"></div>
+<div><label>予定終業</label><input id="calOut" type="time" value="18:00"></div>
+<div><label>休憩（分）</label><input id="calBreak" type="number" min="0" value="60"></div>
+<div><label>メモ</label><input id="calMemo"></div>
+</div>
+<div class="actions"><button class="btn" onclick="saveCalendar()">予定を保存</button><button class="btn secondary" onclick="clearCalendar()">入力クリア</button></div>
+<div id="calResult"></div>
+</div>
+<div class="card"><h2>月間カレンダー</h2>
+<div class="grid"><div><label>対象月</label><input id="calMonth" type="month"></div><div><label>従業員</label><select id="calMonthEmp"></select></div></div>
+<div class="actions"><button class="btn" onclick="renderCalendar()">表示</button><button class="btn secondary" onclick="applyCalendarToTimecard()">予定から勤務入力を作成</button></div>
+<div id="calTable"></div>
+<p class="note">有給・欠勤・遅刻・早退は勤務実績とは別の勤怠区分として保存します。給与・有給賃金・控除の最終処理は就業規則や賃金規程等の確認が必要です。</p>
+</div>
+</section>
+<section id="timecard">
+<div class="card"><h2>V58｜タイムカード・勤務実績</h2><p class="note">労働時間の記録から月次給与計算へつなぐ機能です。深夜は22:00〜5:00を集計します。</p>
+<div class="grid">
+<div><label>勤務日</label><input id="tcDate" type="date"></div>
+<div><label>従業員</label><select id="tcEmp"></select></div>
+<div><label>始業</label><input id="tcIn" type="time"></div>
+<div><label>終業</label><input id="tcOut" type="time"></div>
+<div><label>休憩（分）</label><input id="tcBreak" type="number" min="0" value="60"></div>
+<div><label>休日区分</label><select id="tcHoliday"><option value="workday">通常日</option><option value="statutory">法定休日</option><option value="scheduled">所定休日</option></select></div>
+</div>
+<div class="actions"><button class="btn" onclick="saveTimecard()">勤務を保存</button><button class="btn secondary" onclick="clearTimecard()">入力クリア</button></div>
+<div id="tcResult"></div>
+</div>
+<div class="card"><h2>月次勤務集計</h2>
+<div class="grid"><div><label>対象月</label><input id="tcMonth" type="month"></div><div><label>従業員</label><select id="tcMonthEmp"></select></div>
+<div><label>所定労働時間/月</label><input id="tcScheduled" type="number" min="1" step="0.01" value="160"></div></div>
+<div class="actions"><button class="btn" onclick="aggregateTimecard()">月次集計</button><button class="btn secondary" onclick="applyTimecardToPayroll()">給与計算へ反映</button></div>
+<div id="tcSummary"></div>
+</div>
+</section>
+<section id="ledger">
+<div class="card"><h2>V50/V56｜全従業員・月次給与台帳</h2>
+<div class="grid"><div><label>対象年月</label><input id="ledgerMonth" type="month"></div></div>
+<div class="actions"><button class="btn" onclick="bulkCalc()">全員一括計算・保存</button><button class="btn secondary" onclick="exportCSV('month')">CSV出力</button></div>
+<div id="ledgerResult"></div></div>
+</section>
+
+<section id="social">
+<div class="card"><h2>V51｜奈良支部・社会保険料確認</h2>
+<div class="grid"><div><label>標準報酬月額</label><select id="socialStd"></select></div><div><label>年齢区分</label><select id="careMode"><option value="no">介護なし</option><option value="yes">介護あり（40〜64歳）</option></select></div><div><label>適用月</label><input id="socialMonth" type="month"></div></div>
+<div id="socialResult"></div>
+<p class="note">令和8年度の奈良支部公式料率は健康保険9.91%、介護込み11.53%、子ども・子育て支援金0.23%、厚生年金18.30%。この画面は公式保険料額表の料率・標準報酬等級に基づく確認用です。実際の資格取得・喪失、月途中の異動、育休等の免除、基金加入などは別途判定が必要です。</p></div>
+</section>
+
+<section id="tax">
+<div class="card"><h2>V52｜令和8年分 源泉所得税</h2>
+<div class="grid">
+<div><label>社会保険料控除後給与</label><input id="taxAfter" type="number" min="0"></div>
+<div><label>配偶者</label><select id="taxSpouse"><option value="0">なし</option><option value="1">あり</option></select></div>
+<div><label>扶養親族等の数</label><input id="taxDeps" type="number" min="0" value="0"></div>
+<div><label>区分</label><select id="taxMode"><option value="kou">月額表・甲欄（電算機特例）</option><option value="otsu">月額表・乙欄（電算計算式）</option><option value="bonus">賞与（算出率表の確認）</option></select></div>
+</div>
+<div class="actions"><button class="btn" onclick="calcTaxScreen()">源泉税を計算</button></div><div id="taxResult"></div>
+<p class="note">令和8年分の税額表は国税庁の公式表を基準にしています。甲欄は国税庁の電算機計算特例、乙欄は国税庁が公開する電算計算式を使用します。丙欄・日額表・賞与の詳細な表引きは、支給形態に応じて公式税額表との照合が必要です。</p></div>
+</section>
+
+<section id="slip"><div class="card noPrint"><h2>V53｜給与明細</h2><div class="grid"><div><label>保存済み明細</label><select id="slipSel"></select></div></div><div class="actions"><button class="btn" onclick="showSlip()">明細表示</button><button class="btn secondary" onclick="window.print()">印刷・PDF保存</button></div></div><div id="slipView"></div></section>
+
+<section id="annual">
+<div class="card"><h2>V54｜年間給与台帳</h2><div class="grid"><div><label>年</label><input id="annualYear" type="number" value="2026"></div><div><label>従業員</label><select id="annualEmp"></select></div></div>
+<div class="actions"><button class="btn" onclick="annualCalc()">年間集計</button><button class="btn secondary" onclick="exportCSV('annual')">CSV出力</button></div><div id="annualResult"></div></div>
+</section>
+
+<section id="yearend">
+<div class="card"><h2>V55｜年末調整管理</h2>
+<div class="grid"><div><label>年</label><input id="yeYear" type="number" value="2026"></div><div><label>従業員</label><select id="yeEmp"></select></div>
+<div><label>年調年税額（会社・税理士等で確定した額）</label><input id="yeFinalTax" type="number" min="0"></div><div><label>年間源泉徴収済額</label><input id="yeWithheld" type="number" min="0"></div></div>
+<div class="actions"><button class="btn" onclick="yearEndCalc()">年末調整差額を計算</button><button class="btn secondary" onclick="saveYearEnd()">保存</button></div><div id="yearendResult"></div>
+<p class="note">V55は年間給与・源泉徴収実績と、確定した年調年税額との差額を管理する画面です。扶養変更、配偶者控除、保険料控除、住宅ローン控除等の各申告内容から年調年税額そのものを自動確定する機能ではありません。最終税額は国税庁の令和8年分年末調整資料に照合してください。</p></div>
+</section>
+
+
+<section id="dashboard">
+<div class="card"><h2>V74｜経営者ダッシュボード</h2><p class="note">V63〜V74を統合。勤怠締め、36協定、社会保険、賞与、振込、税務、権限・バックアップ・監査、経営集計を一つの画面で管理します。</p>
+<div class="grid"><div><label>対象月</label><input id="dashMonth" type="month"></div><div><label>対象年</label><input id="dashYear" type="number" value="2026"></div></div>
+<div class="actions"><button class="btn" onclick="renderDashboard()">集計</button></div><div id="dashResult"></div>
+</div>
+<div class="card"><h3>V63｜給与計算ステータス</h3><p class="note">勤怠→給与→明細の連動状態を確認します。</p><div class="actions"><button class="btn" onclick="renderCloseStatus()">ステータス確認</button></div><div id="closeResult"></div></div>
+</section>
+
+<section id="labor">
+<div class="card"><h2>V64｜36協定・残業上限管理</h2>
+<div class="grid">
+<div><label>従業員</label><select id="laborEmp"></select></div>
+<div><label>月45時間超を許容する特別条項</label><select id="laborSpecial"><option value="0">なし</option><option value="1">あり</option></select></div>
+<div><label>年間時間外上限</label><input id="laborAnnual" type="number" value="360"></div>
+<div><label>月間時間外上限</label><input id="laborMonthly" type="number" value="45"></div>
+</div>
+<div class="actions"><button class="btn" onclick="renderLabor()">上限チェック</button></div><div id="laborResult"></div>
+<p class="note">一般則では原則月45時間・年360時間。特別条項では年720時間、単月100時間未満（休日労働含む）、複数月平均80時間以内等の規制があります。業種別特例は別途確認してください。</p>
+</div></section>
+
+<section id="socialm">
+<div class="card"><h2>V65-66｜社会保険・算定／月額変更管理</h2>
+<div class="grid"><div><label>従業員</label><select id="smEmp"></select></div><div><label>入社日</label><input id="smHire" type="date"></div><div><label>資格取得日</label><input id="smAcquire" type="date"></div><div><label>資格喪失日</label><input id="smLose" type="date"></div></div>
+<div class="actions"><button class="btn" onclick="saveSocialStatus()">保存</button></div><div id="smStatus"></div>
+<h3>算定基礎・月額変更</h3>
+<div class="grid"><div><label>4月報酬</label><input id="aprPay" type="number"></div><div><label>5月報酬</label><input id="mayPay" type="number"></div><div><label>6月報酬</label><input id="junPay" type="number"></div><div><label>現標準報酬</label><input id="curStd" type="number"></div><div><label>固定的賃金変更</label><select id="fixedChange"><option value="0">なし</option><option value="1">あり</option></select></div></div>
+<div class="actions"><button class="btn" onclick="calcSocialReview()">判定</button></div><div id="smReview"></div>
+<p class="note">算定基礎届は原則4〜6月の報酬を基礎に定時決定し、随時改定は固定的賃金の変動等を確認します。日本年金機構の届出様式・Q&Aに照合してください。</p>
+</div></section>
+
+<section id="bonusm">
+<div class="card"><h2>V67｜賞与計算</h2>
+<div class="grid"><div><label>従業員</label><select id="bonusEmp"></select></div><div><label>賞与総額</label><input id="bonusGross" type="number" min="0"></div><div><label>標準賞与額</label><input id="bonusStd" type="number" min="0"></div><div><label>源泉税率（確認入力）</label><input id="bonusTaxRate" type="number" step="0.0001" value="0"></div></div>
+<div class="actions"><button class="btn" onclick="calcBonus()">賞与計算</button><button class="btn secondary" onclick="saveBonus()">保存</button></div><div id="bonusResult"></div>
+<p class="note">賞与の源泉所得税は前月給与・社会保険料控除後給与・扶養親族等の数等から算出率を決めるため、V67では確認入力方式です。社会保険料も資格・上限等を公式資料で確認してください。</p>
+</div></section>
+
+<section id="bank">
+<div class="card"><h2>V68｜給与振込データ</h2>
+<div class="grid"><div><label>従業員</label><select id="bankEmp"></select></div><div><label>対象月</label><input id="bankMonth" type="month"></div><div><label>振込日</label><input id="bankDate" type="date"></div><div><label>銀行コード</label><input id="bankCode"></div><div><label>支店コード</label><input id="branchCode"></div><div><label>預金種目</label><select id="bankType"><option value="1">普通</option><option value="2">当座</option></select></div><div><label>口座番号</label><input id="accountNo"></div><div><label>名義カナ</label><input id="accountName"></div></div>
+<div class="actions"><button class="btn" onclick="addBankAccount()">口座情報を保存</button><button class="btn secondary" onclick="exportBankCSV()">振込一覧CSV</button></div><div id="bankResult"></div>
+<p class="note">銀行振込用の正式な全銀協フォーマットは金融機関・契約仕様を確認してから出力してください。V68はまず従業員別の振込先情報と支給額を管理します。</p>
+</div></section>
+
+<section id="taxdocs">
+<div class="card"><h2>V69-70｜税務・年末調整</h2>
+<div class="grid"><div><label>対象年</label><input id="taxDocYear" type="number" value="2026"></div><div><label>従業員</label><select id="taxDocEmp"></select></div></div>
+<div class="actions"><button class="btn" onclick="renderTaxDoc()">年間集計</button><button class="btn secondary" onclick="exportTaxCSV()">税務CSV</button></div><div id="taxDocResult"></div>
+<h3>年末調整入力</h3>
+<div class="grid"><div><label>給与所得控除後給与等</label><input id="yeSalary"></div><div><label>所得控除合計</label><input id="yeDeduct"></div><div><label>年調年税額</label><input id="yeTax"></div><div><label>年間源泉徴収済額</label><input id="yeWithhold"></div></div>
+<div class="actions"><button class="btn" onclick="calcYeV74()">年調差額</button></div><div id="yeV74Result"></div>
+<p class="note">源泉徴収票・給与支払報告書は国税庁の令和8年分様式・手引に合わせて作成する前提です。提出用電子データはe-Tax/eLTAXの仕様確認が必要です。</p>
+</div></section>
+
+<section id="privacy">
+<div class="card"><h2>V71｜個人情報・アクセス管理</h2>
+<div class="grid"><div><label>利用者名</label><input id="userName"></div><div><label>権限</label><select id="userRole"><option>管理者</option><option>給与担当</option><option>閲覧者</option></select></div></div>
+<div class="actions"><button class="btn" onclick="saveUserRole()">利用者設定保存</button></div><div id="userResult"></div>
+<p class="note">このHTML版はローカルブラウザで動作するため、本格的な認証・暗号化サーバー機能はありません。マイナンバー等の特定個人情報を保存する場合は、別途適切な安全管理措置を講じてください。</p>
+</div>
+<div class="card"><h2>V72｜バックアップ世代管理</h2>
+<div class="actions"><button class="btn" onclick="backup()">JSONバックアップ</button><button class="btn secondary" onclick="backupVersioned()">世代番号付きバックアップ</button></div><div id="backupResult"></div></div>
+<div class="card"><h2>V73｜操作・訂正履歴</h2>
+<div class="grid"><div><label>操作</label><input id="auditAction"></div><div><label>対象</label><input id="auditTarget"></div><div><label>理由</label><input id="auditReason"></div></div>
+<div class="actions"><button class="btn" onclick="addAudit()">履歴を記録</button></div><div id="auditResult"></div></div>
+</section>
+
+<section id="dataManage">
+<div class="card">
+<h2>V74.2｜データ管理・初期化</h2>
+<p class="note">この端末のV74に保存されている給与・勤怠等のデータを管理します。</p>
+<div class="kpis">
+<div class="kpi"><span>従業員</span><b id="dmEmpCount">0</b></div>
+<div class="kpi"><span>給与履歴</span><b id="dmHistCount">0</b></div>
+<div class="kpi"><span>勤怠</span><b id="dmTcCount">0</b></div>
+<div class="kpi"><span>有給</span><b id="dmLeaveCount">0</b></div>
+</div>
+<div class="actions">
+<button class="btn" onclick="refreshDataManagement()">保存データ確認</button>
+<button class="btn danger" onclick="confirmClearAllV74()">⚠️ V74データを全削除</button>
+</div>
+<div id="dmResult"></div>
+</div>
+<div class="card">
+<h3>削除対象</h3>
+<p>従業員マスター／給与項目／給与履歴／会社設定／年末調整／タイムカード／勤務設定／勤務カレンダー／有給／月間勤怠／標準報酬／社会保険資格／賞与／振込先／36協定設定／利用者設定／監査ログなど、V74がlocalStorageに保存したデータを削除します。</p>
+<p class="warn">⚠️ 削除後は元に戻せません。必要な場合は先にJSONバックアップを作成してください。</p>
+</div>
+</section>
+
+<section id="settings">
+<div class="card"><h2>会社設定</h2><div class="grid">
+<div><label>会社名</label><input id="coName"></div><div><label>支給日</label><input id="payday" placeholder="例：毎月25日"></div><div><label>住所</label><input id="coAddr"></div><div><label>電話</label><input id="coTel"></div></div>
+<div class="actions"><button class="btn" onclick="saveSettings()">保存</button></div></div>
+<div class="card"><h2>データ管理</h2><div class="actions"><button class="btn secondary" onclick="backup()">JSONバックアップ</button><label class="btn secondary" style="display:inline-block">JSON復元<input id="restoreFile" type="file" accept=".json" style="display:none" onchange="restore(this)"></label></div></div>
+</section>
+</main>
+
+<script>
+const K={emp:['naraPayrollEmployees','naraEmployees','employees','employeeMaster'],hist:['naraPayrollSalaryHistory'],std:['naraPayrollStandardRemunerations','naraPayrollStandardRemunerationHistory','naraStandardRemunerationHistory'],items:['naraPayrollPayItems'],company:'naraPayrollCompanySettings',ye:'naraPayrollYearEnd',tc:'naraPayrollTimecards',ws:'naraPayrollWorkSettings',cal:'naraPayrollWorkCalendar',pl:'naraPayrollPaidLeave',plb:'naraPayrollPaidLeaveBalances',att:'naraPayrollAttendanceSummaries',socialStatus:'naraPayrollSocialStatus',bonus:'naraPayrollBonuses',bank:'naraPayrollBankAccounts',audit:'naraPayrollAuditLog',users:'naraPayrollUsers',labor:'naraPayrollLaborRules'};
+const yen=n=>Math.round(Number(n)||0).toLocaleString('ja-JP');
+function read(k,def=[]){try{return JSON.parse(localStorage.getItem(k))??def}catch(e){return def}}
+function first(keys,def=[]){for(const k of keys){const v=read(k,null);if(v!==null)return v}return def}
+function save(k,v){localStorage.setItem(k,JSON.stringify(v))}
+function employees(){let x=first(K.emp,[]); if(!Array.isArray(x))x=Object.values(x||{}); return x}
+function histories(){let x=read(K.hist[0],[]);return Array.isArray(x)?x:[]}
+function standards(){let x=first(K.std,[]);if(!Array.isArray(x))x=Object.values(x||{});return x}
+function payItems(){let x=read(K.items[0],[]);return Array.isArray(x)?x:[]}
+function empId(e){return String(e.employeeId??e.id??e.code??'')}
+function empName(e){return e.employeeName??e.name??''}
+function money(x){return Math.round(Number(x)||0)}
+function stdOptions(sel){sel.innerHTML='<option value="0">未設定</option>'+[58000,68000,78000,88000,98000,104000,110000,118000,126000,134000,142000,150000,160000,170000,180000,190000,200000,220000,240000,260000,280000,300000,320000,340000,360000,380000,410000,440000,470000,500000,530000,560000,590000,620000,650000,680000,710000,750000,790000,830000].map(x=>`<option value="${x}">${yen(x)}円</option>`).join('')}
+function loadEmpSelects(){let es=employees();for(const id of ['emp','annualEmp','yeEmp']){let s=document.getElementById(id);s.innerHTML=es.length?es.map(e=>`<option value="${empId(e)}">${htmlEsc(empName(e))} (${htmlEsc(empId(e))})</option>`).join(''):'<option value="">従業員マスターなし</option>'}}
+function htmlEsc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
+function applicableStd(id,month){let hs=standards().filter(x=>String(x.employeeId??x.id??'')===String(id));let m=month||'';let cand=hs.filter(x=>String(x.effectiveMonth??x.month??'')<=m).sort((a,b)=>String(a.effectiveMonth??a.month??'').localeCompare(String(b.effectiveMonth??b.month??'')));return cand.length?Number(cand[cand.length-1].standardRemuneration??cand[cand.length-1].standard??cand[cand.length-1].amount??0):0}
+function findEmp(id){return employees().find(e=>empId(e)===String(id))}
+function ageAt(e,month){let b=e?.birthDate??e?.birth??'';if(!b)return null;let d=new Date(b+'T00:00:00');let m=new Date(month+'-01T00:00:00');let age=m.getFullYear()-d.getFullYear();if(m.getMonth()<d.getMonth()||(m.getMonth()===d.getMonth()&&m.getDate()<d.getDate()))age--;return age}
+function social(std,care,month){let h=std*.0991;let c=care?std*.0162:0;let s=(month>='2026-04')?std*.0023:0;let p=std*.183;return {health:money(h/2),care:money(c/2),support:money(s/2),pension:money(p/2)}}
+function taxKou(a,spouse,deps){
+ a=money(a); if(a<=0)return 0;
+ // 令和8年分・国税庁「月額表の甲欄を適用する給与等に対する税額の電算機計算の特例」
+ // A=社会保険料等控除後給与。控除額・税率は国税庁令和8年分別表をそのまま反映。
+ let salaryDed;
+ if(a<=158333) salaryDed=54167;
+ else if(a<=299999) salaryDed=Math.ceil(a*.30+6667);
+ else if(a<=549999) salaryDed=Math.ceil(a*.20+36667);
+ else if(a<=708330) salaryDed=Math.ceil(a*.10+91667);
+ else salaryDed=162500;
+ let basic;
+ if(a<=2120833) basic=48334;
+ else if(a<=2162499) basic=40000;
+ else if(a<=2204166) basic=26667;
+ else if(a<=2245833) basic=13334;
+ else basic=0;
+ let taxable=Math.max(0,a-salaryDed-(spouse?31667:0)-Math.max(0,Number(deps)||0)*31667-basic);
+ let tax;
+ if(taxable<=162500) tax=taxable*.05105;
+ else if(taxable<=275000) tax=taxable*.10210-8296;
+ else if(taxable<=579166) tax=taxable*.20420-36374;
+ else if(taxable<=750000) tax=taxable*.23483-54113;
+ else if(taxable<=1500000) tax=taxable*.33693-130688;
+ else if(taxable<=3333333) tax=taxable*.40840-237893;
+ else tax=taxable*.45945-408061;
+ return Math.max(0,Math.round(tax/10)*10);
+}
+function taxOtsu(a){a=money(a); if(a<88000)return money(a*.03063); if(a<=1010000){let base=Math.floor((a-88000)/1000);return Math.max(0, money(3_200+base*110));} return money(a*.2042)}
+function payBreakdown(){
+  const method=document.getElementById('payMethod').value;
+  let base=money(document.getElementById('base').value);
+  let commute=money(document.getElementById('commute').value);
+  if(method==='monthly') return {basePay:base,timePay:0,commute};
+  const w=Number(document.getElementById('hourly').value)||0;
+  const n=Number(document.getElementById('normalHours').value)||0;
+  const o=Number(document.getElementById('overtimeHours').value)||0;
+  const night=Number(document.getElementById('nightHours').value)||0;
+  const no=Number(document.getElementById('nightOverHours').value)||0;
+  const hol=Number(document.getElementById('holidayHours').value)||0;
+
+  // 月60時間超の時間外は50%割増。入力された時間外のうち、
+  // 60時間を超える部分を自動的に分離する。
+  const over60=Math.max(0,o-60);
+  const under60=Math.min(o,60);
+  document.getElementById('over60Hours').value=over60.toFixed(2);
+
+  const normal=w*n;
+  const overtime=w*under60*1.25;
+  const overtime60=w*over60*1.50;
+  const nightPay=w*night*1.25;
+  const nightOver=w*no*1.50;
+  const holiday=w*hol*1.35;
+  return {
+    basePay:0,
+    timePay:money(normal+overtime+overtime60+nightPay+nightOver+holiday),
+    commute,
+    timeDetail:{
+      normal:money(normal),
+      overtime:money(overtime),
+      overtime60:money(overtime60),
+      night:money(nightPay),
+      nightOver:money(no*w*1.50),
+      holiday:money(holiday)
+    },
+    hours:{normal:n,overtime:under60,overtime60:over60,night,no,holiday:hol}
+  };
+}
+function calcCore(e,month,base,allow,other,std,resident,taxType,spouse,deps,bonus){let pb=payBreakdown(); let gross=pb.basePay+pb.timePay+money(allow)+money(other)+money(pb.commute)+money(bonus);let care=ageAt(e,month);let sr=std||applicableStd(empId(e),month);let si=social(sr,care!==null?(care>=40&&care<=64):false,month);let sit=si.health+si.care+si.support+si.pension;let ei=money(gross*.005);let after=gross-sit-ei;let wt=taxType==='kou'?taxKou(after,spouse,deps):taxType==='otsu'?taxOtsu(after):0;let net=gross-sit-ei-wt-money(resident);return {gross,standardRemuneration:sr,health:si.health,care:si.care,support:si.support,pension:si.pension,socialInsurance:sit,employmentInsurance:ei,withholdingTax:wt,residentTax:money(resident),netPay:net,basePay:pb.basePay,timePay:pb.timePay,commute:pb.commute,timeDetail:pb.timeDetail||{},hours:pb.hours||{},overtimeHours:pb.hours?.overtime||0,overtimeOver60:pb.hours?.overtime60||0,holidayHours:pb.hours?.holiday||0,nightHours:pb.hours?.night||0,allowances:money(allow),otherPay:money(other),bonus:money(bonus),taxType,detail:{age:care}}}
+function populateTcEmployees(){let es=employees();for(const id of ['tcEmp','tcMonthEmp']){let s=document.getElementById(id);if(s)s.innerHTML=es.length?es.map(e=>`<option value="${empId(e)}">${htmlEsc(empName(e))} (${htmlEsc(empId(e))})</option>`).join(''):'<option value="">従業員マスターなし</option>'}}
+function loadEmployee(){let e=findEmp(document.getElementById('emp').value);if(!e)return;let m=document.getElementById('payMonth').value;document.getElementById('resident').value=e.residentTax??e.resident??0;document.getElementById('deps').value=e.dependents??e.deps??0;document.getElementById('spouse').value=e.spouse?'1':'0';let sr=applicableStd(empId(e),m);document.getElementById('std').value=String(sr); document.getElementById('payMethod').value='monthly'; document.getElementById('hourly').value=e.hourlyWage??e.hourly??0;let pi=payItems().filter(x=>String(x.employeeId??x.id??'')===empId(e)&&(!x.month||x.month===m)).sort((a,b)=>String(a.month||'').localeCompare(String(b.month||'')));if(pi.length){let p=pi[pi.length-1];document.getElementById('base').value=p.base??0;document.getElementById('allow').value=p.allow??p.allowances??0;document.getElementById('other').value=p.other??0}}
+function calculate(saveIt){let e=findEmp(document.getElementById('emp').value);if(!e){alert('従業員マスターがありません。');return}let m=document.getElementById('payMonth').value||new Date().toISOString().slice(0,7);let r=calcCore(e,m,+base.value,+allow.value,+other.value,+std.value,+resident.value,taxType.value,spouse.value==='1',+deps.value,+bonus.value);if(saveIt){let hs=histories();let rec={key:empId(e)+'_'+m,employeeId:empId(e),employeeName:empName(e),payrollMonth:m,savedAt:new Date().toISOString(),...r};let i=hs.findIndex(x=>x.key===rec.key);if(i>=0)hs[i]=rec;else hs.push(rec);save(K.hist[0],hs);refreshSlip();}renderCalc(r)}
+function renderCalc(r){let td=r.timeDetail||{};document.getElementById('calcResult').innerHTML=`<div class="card"><div class="kpis">
+<div class="kpi"><span>総支給</span><b>${yen(r.gross)}円</b></div><div class="kpi"><span>社会保険</span><b>${yen(r.socialInsurance)}円</b></div><div class="kpi"><span>雇用保険</span><b>${yen(r.employmentInsurance)}円</b></div><div class="kpi"><span>源泉所得税</span><b>${yen(r.withholdingTax)}円</b></div><div class="kpi"><span>住民税</span><b>${yen(r.residentTax)}円</b></div><div class="kpi"><span>差引支給</span><b>${yen(r.netPay)}円</b></div></div>
+<h3>V56 支給内訳</h3><div class="tableWrap"><table><tbody>
+<tr><th>基本給</th><td>${yen(r.basePay)}円</td><th>時間給等</th><td>${yen(r.timePay)}円</td></tr>
+<tr><th>通常時間</th><td>${yen(td.normal)}円</td><th>時間外25%</th><td>${yen(td.overtime)}円</td></tr><tr><th>月60時間超50%</th><td>${yen(td.overtime60)}円</td><th>通勤手当</th><td>${yen(r.commute)}円</td></tr><tr><th>月60時間超50%</th><td>${yen(td.overtime60)}円</td><th>超過時間</th><td>${r.timeDetail&&r.timeDetail.overtime60?yen(r.timeDetail.overtime60):0}円</td></tr>
+<tr><th>深夜25%</th><td>${yen(td.night)}円</td><th>深夜＋時間外50%</th><td>${yen(td.nightOver)}円</td></tr>
+<tr><th>法定休日35%</th><td>${yen(td.holiday)}円</td><th>通勤手当</th><td>${yen(r.commute)}円</td></tr>
+</tbody></table></div></div>`}
+function bulkCalc(){let m=document.getElementById('ledgerMonth').value||new Date().toISOString().slice(0,7);let es=employees();if(!es.length){alert('従業員マスターがありません。');return}let hs=histories();let rows=[];for(const e of es){let id=empId(e), pi=payItems().filter(x=>String(x.employeeId??x.id??'')===id&&(!x.month||x.month===m)).sort((a,b)=>String(a.month||'').localeCompare(String(b.month||'')));let p=pi.length?pi[pi.length-1]:{};let sr=applicableStd(id,m);let oldMethod=payMethod.value,oldBase=base.value,oldAllow=allow.value,oldOther=other.value,oldCommute=commute.value,oldBonus=bonus.value;
+payMethod.value='monthly';base.value=+p.base||0;allow.value=+p.allow||+p.allowances||0;other.value=+p.other||0;commute.value=+p.commute||0;bonus.value=0;
+let r=calcCore(e,m,+p.base||0,+p.allow||+p.allowances||0,+p.other||0,sr,+e.residentTax||+e.resident||0,e.taxType||'kou',!!e.spouse,+e.dependents||+e.deps||0,0);
+payMethod.value=oldMethod;base.value=oldBase;allow.value=oldAllow;other.value=oldOther;commute.value=oldCommute;bonus.value=oldBonus;let rec={key:id+'_'+m,employeeId:id,employeeName:empName(e),payrollMonth:m,savedAt:new Date().toISOString(),...r};let i=hs.findIndex(x=>x.key===rec.key);if(i>=0)hs[i]=rec;else hs.push(rec);rows.push(rec)}save(K.hist[0],hs);renderLedger(rows)}
+function renderLedger(rows){let t=`<div class="kpis"><div class="kpi"><span>人数</span><b>${rows.length}</b></div><div class="kpi"><span>総支給計</span><b>${yen(rows.reduce((a,r)=>a+r.gross,0))}円</b></div><div class="kpi"><span>社会保険計</span><b>${yen(rows.reduce((a,r)=>a+r.socialInsurance,0))}円</b></div><div class="kpi"><span>源泉税計</span><b>${yen(rows.reduce((a,r)=>a+r.withholdingTax,0))}円</b></div><div class="kpi"><span>手取計</span><b>${yen(rows.reduce((a,r)=>a+r.netPay,0))}円</b></div></div><div class="tableWrap"><table><thead><tr><th>従業員</th><th>総支給</th><th>社保</th><th>雇保</th><th>源泉</th><th>住民税</th><th>手取</th></tr></thead><tbody>${rows.map(r=>`<tr><td>${htmlEsc(r.employeeName)}</td><td>${yen(r.gross)}</td><td>${yen(r.socialInsurance)}</td><td>${yen(r.employmentInsurance)}</td><td>${yen(r.withholdingTax)}</td><td>${yen(r.residentTax)}</td><td>${yen(r.netPay)}</td></tr>`).join('')}</tbody></table></div>`;document.getElementById('ledgerResult').innerHTML=t}
+
+
+
+
+
+function populateAttendanceEmployees(){
+  let es=employees(),el=document.getElementById('attEmp');
+  if(el)el.innerHTML=es.length?es.map(e=>`<option value="${empId(e)}">${htmlEsc(empName(e))} (${htmlEsc(empId(e))})</option>`).join(''):'<option value="">従業員マスターなし</option>';
+}
+function attendanceRows(month,id){
+  let tc=timecards().filter(x=>String(x.date||'').startsWith(month)&&String(x.employeeId)===String(id));
+  let cal=calendarData().filter(x=>String(x.date||'').startsWith(month)&&String(x.employeeId)===String(id));
+  let pl=paidLeaveRecords().filter(x=>String(x.date||'').startsWith(month)&&String(x.employeeId)===String(id));
+  let dates=[...new Set([...tc.map(x=>x.date),...cal.map(x=>x.date),...pl.map(x=>x.date)])].sort();
+  return dates.map(date=>{
+    let t=tc.find(x=>x.date===date),c=cal.find(x=>x.date===date),p=pl.filter(x=>x.date===date).reduce((a,x)=>a+Number(x.days||0),0);
+    let type=c?.type||'';
+    let mins=t?.minutes||0, hours=mins/60;
+    let ws=workSettings()[id]||{daily:8,weekly:40};
+    let daily=Number(ws.daily)||8;
+    let ot=(type==='statutory_off'?0:Math.max(0,hours-daily));
+    let night=0;
+    if(t){let a=new Date('2000-01-01T'+t.start+':00'),b=new Date('2000-01-01T'+t.end+':00');if(b<=a)b.setDate(b.getDate()+1);for(let z=new Date(a);z<b;z.setMinutes(z.getMinutes()+1)){let hh=z.getHours();if(hh>=22||hh<5)night+=1/60}}
+    let status=t?(type==='statutory_off'?'法定休日勤務':'出勤'):(p>0?'有給':type==='absence'?'欠勤':type==='scheduled_off'?'所定休日':type==='holiday'?'祝日':type==='late'?'遅刻':type==='early_leave'?'早退':'未入力');
+    return {date,status,start:t?.start||'',end:t?.end||'',hours,ot,holiday:type==='statutory_off'?hours:0,night,paid:p};
+  });
+}
+function renderAttendance(){
+  let m=attMonth.value,id=attEmp.value;if(!m||!id){alert('対象月と従業員を選択してください。');return}
+  let rows=attendanceRows(m,id),work=rows.reduce((a,r)=>a+r.hours,0),ot=rows.reduce((a,r)=>a+r.ot,0),hol=rows.reduce((a,r)=>a+r.holiday,0),night=rows.reduce((a,r)=>a+r.night,0),paid=rows.reduce((a,r)=>a+r.paid,0);
+  let absent=rows.filter(r=>r.status==='欠勤').length,late=rows.filter(r=>r.status==='遅刻').length,early=rows.filter(r=>r.status==='早退').length;
+  let rec={month:m,employeeId:id,workHours:work,overtimeHours:ot,holidayHours:hol,nightHours:night,paidLeaveDays:paid,absenceDays:absent,lateDays:late,earlyLeaveDays:early,savedAt:new Date().toISOString()};
+  let a=read(K.att,[]);if(!Array.isArray(a))a=[];let ix=a.findIndex(x=>x.month===m&&String(x.employeeId)===String(id));if(ix>=0)a[ix]=rec;else a.push(rec);save(K.att,a);
+  attSummary.innerHTML=`<div class="kpis"><div class="kpi"><span>実働</span><b>${work.toFixed(2)}h</b></div><div class="kpi"><span>時間外</span><b>${ot.toFixed(2)}h</b></div><div class="kpi"><span>休日労働</span><b>${hol.toFixed(2)}h</b></div><div class="kpi"><span>深夜</span><b>${night.toFixed(2)}h</b></div><div class="kpi"><span>有給</span><b>${paid}日</b></div><div class="kpi"><span>欠勤</span><b>${absent}日</b></div><div class="kpi"><span>遅刻</span><b>${late}日</b></div><div class="kpi"><span>早退</span><b>${early}日</b></div></div>`;
+  attTable.innerHTML=`<div class="tableWrap"><table><thead><tr><th>日付</th><th>状態</th><th>始業</th><th>終業</th><th>実働</th><th>時間外</th><th>休日</th><th>深夜</th><th>有給</th></tr></thead><tbody>${rows.map(r=>`<tr><td>${r.date}</td><td>${r.status}</td><td>${r.start}</td><td>${r.end}</td><td>${r.hours.toFixed(2)}</td><td>${r.ot.toFixed(2)}</td><td>${r.holiday.toFixed(2)}</td><td>${r.night.toFixed(2)}</td><td>${r.paid}</td></tr>`).join('')}</tbody></table></div>`;
+}
+function exportAttendanceCSV(){
+  let m=attMonth.value,id=attEmp.value,rows=attendanceRows(m,id);if(!rows.length){alert('出力対象がありません。');return}
+  let data=[['日付','状態','始業','終業','実働時間','時間外','休日労働','深夜','有給日数'],...rows.map(r=>[r.date,r.status,r.start,r.end,r.hours.toFixed(2),r.ot.toFixed(2),r.holiday.toFixed(2),r.night.toFixed(2),r.paid])];
+  let csv='\ufeff'+data.map(a=>a.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
+  let u=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'})),a=document.createElement('a');a.href=u;a.download=`attendance_${id}_${m}.csv`;a.click();URL.revokeObjectURL(u);
+}
+function paidLeaveRecords(){let x=read(K.pl,[]);return Array.isArray(x)?x:[]}
+function paidLeaveBalances(){let x=read(K.plb,{});return x&&typeof x==='object'?x:{}}
+function populatePaidLeaveEmployees(){
+  let es=employees();
+  for(const id of ['plEmp','plRecordEmp','plViewEmp']){
+    let el=document.getElementById(id);
+    if(el)el.innerHTML=es.length?es.map(e=>`<option value="${empId(e)}">${htmlEsc(empName(e))} (${htmlEsc(empId(e))})</option>`).join(''):'<option value="">従業員マスターなし</option>';
+  }
+  if(es.length)loadPaidLeaveEmployee();
+}
+function loadPaidLeaveEmployee(){
+  let id=plEmp.value,e=findEmp(id),b=paidLeaveBalances()[id]||{};
+  plHire.value=e?.hireDate||e?.hire||e?.startDate||'';
+  plBase.value=b.baseDate||'';
+  plGrant.value=b.grant??10;plCarry.value=b.carry??0;plUsed.value=b.used??0;
+}
+function monthsBetween(a,b){let x=new Date(a+'T00:00:00'),y=new Date(b+'T00:00:00');return (y.getFullYear()-x.getFullYear())*12+y.getMonth()-x.getMonth()-(y.getDate()<x.getDate()?1:0)}
+function statutoryGrant(months,weeklyDays=5,weeklyHours=40){
+  if(months<6)return 0;
+  if(weeklyHours>=30 || weeklyDays>=5){
+    if(months<18)return 10;if(months<30)return 11;if(months<42)return 12;if(months<54)return 14;if(months<66)return 16;if(months<78)return 18;return 20;
+  }
+  const tbl={4:[7,8,9,10,12,13,15],3:[5,6,6,8,9,10,11],2:[3,4,4,5,6,6,7],1:[1,2,2,2,3,3,3]};
+  let yrs=months>=78?6:Math.floor((months-6)/12);
+  yrs=Math.max(0,Math.min(6,yrs));return tbl[weeklyDays]?.[yrs]||0;
+}
+function autoPaidLeave(){
+  let id=plEmp.value,e=findEmp(id);let hire=plHire.value||e?.hireDate||e?.hire||'';
+  if(!hire){alert('雇入日を入力してください。');return}
+  let target=new Date(hire+'T00:00:00');target.setMonth(target.getMonth()+6);
+  plBase.value=target.toISOString().slice(0,10);
+  let ws=workSettings()[id]||{weekly:40};
+  let weeklyHours=Number(ws.weekly)||40, weeklyDays=weeklyHours>=30?5:4;
+  // 雇入日から基準日までの期間を基準に法定付与日数を算定
+  plGrant.value=statutoryGrant(6,weeklyDays,weeklyHours)||10;
+  plResult.innerHTML='<p class="ok">初回基準日と法定付与日数の目安を設定しました。出勤率8割以上などの要件は別途確認してください。</p>';
+}
+function savePaidLeaveBalance(){
+  let id=plEmp.value;if(!id){alert('従業員を選択してください。');return}
+  let a=paidLeaveBalances();a[id]={baseDate:plBase.value,grant:Number(plGrant.value)||0,carry:Number(plCarry.value)||0,used:Number(plUsed.value)||0,savedAt:new Date().toISOString()};
+  save(K.plb,a);renderPaidLeave();alert('有給休暇残日数を保存しました。');
+}
+function savePaidLeaveRecord(){
+  let rec={id:Date.now().toString(),date:plDate.value,employeeId:plRecordEmp.value,days:Number(plDays.value)||0,kind:plKind.value,memo:plMemo.value};
+  if(!rec.date||!rec.employeeId||!rec.days){alert('取得日・従業員・取得日数を入力してください。');return}
+  let a=paidLeaveRecords();a.push(rec);save(K.pl,a);renderPaidLeave();alert('有給取得を保存しました。');
+}
+function deletePaidLeave(id){save(K.pl,paidLeaveRecords().filter(x=>x.id!==id));renderPaidLeave()}
+function renderPaidLeave(){
+  let id=plViewEmp.value||plEmp.value,y=String(plYear.value),b=paidLeaveBalances()[id]||{};
+  let rec=paidLeaveRecords().filter(x=>String(x.employeeId)===String(id)&&String(x.date||'').startsWith(y));
+  let used=rec.reduce((a,x)=>a+Number(x.days||0),0),carry=Number(b.carry||0),grant=Number(b.grant||0),remaining=Math.max(0,carry+grant-used);
+  let mandatory=(grant>=10?5:0),mandatoryLeft=Math.max(0,mandatory-used);
+  plLedger.innerHTML=`<div class="kpis"><div class="kpi"><span>繰越</span><b>${carry}日</b></div><div class="kpi"><span>当年度付与</span><b>${grant}日</b></div><div class="kpi"><span>取得</span><b>${used}日</b></div><div class="kpi"><span>残日数</span><b>${remaining}日</b></div><div class="kpi"><span>5日義務の残り</span><b>${mandatoryLeft}日</b></div></div>
+  <p class="note">基準日：${b.baseDate||'未設定'}｜年10日以上付与なら5日取得義務の管理対象。対象期間・複数基準日等は個別確認。</p>
+  <div class="tableWrap"><table><thead><tr><th>取得日</th><th>日数</th><th>区分</th><th>メモ</th><th>削除</th></tr></thead><tbody>${rec.sort((a,b)=>String(a.date).localeCompare(String(b.date))).map(x=>`<tr><td>${x.date}</td><td>${x.days}</td><td>${x.kind==='employer'?'時季指定':x.kind==='planned'?'計画年休':'本人取得'}</td><td>${htmlEsc(x.memo||'')}</td><td><button onclick="deletePaidLeave('${x.id}')">削除</button></td></tr>`).join('')}</tbody></table></div>`;
+}
+function exportPaidLeaveCSV(){
+  let id=plViewEmp.value||plEmp.value,y=String(plYear.value),b=paidLeaveBalances()[id]||{},rows=paidLeaveRecords().filter(x=>String(x.employeeId)===String(id)&&String(x.date||'').startsWith(y));
+  let data=[['対象年','従業員ID','基準日','繰越','付与','取得日','取得日数','区分','メモ'],...rows.map(x=>[y,id,b.baseDate||'',b.carry||0,b.grant||0,x.date,x.days,x.kind,x.memo||''])];
+  let csv='\ufeff'+data.map(a=>a.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
+  let u=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'})),a=document.createElement('a');a.href=u;a.download=`paid_leave_${id}_${y}.csv`;a.click();URL.revokeObjectURL(u);
+}
+function calendarData(){let x=read(K.cal,[]);return Array.isArray(x)?x:[]}
+function populateCalendarEmployees(){
+  let es=employees();
+  for(const id of ['calEmp','calMonthEmp']){
+    let el=document.getElementById(id);
+    if(el)el.innerHTML=es.length?es.map(e=>`<option value="${empId(e)}">${htmlEsc(empName(e))} (${htmlEsc(empId(e))})</option>`).join(''):'<option value="">従業員マスターなし</option>';
+  }
+}
+function saveCalendar(){
+  let rec={id:Date.now().toString(),date:calDate.value,employeeId:calEmp.value,type:calType.value,start:calIn.value,end:calOut.value,breakMin:Number(calBreak.value)||0,memo:calMemo.value};
+  if(!rec.date||!rec.employeeId){alert('日付と従業員を入力してください。');return}
+  let a=calendarData();a.push(rec);save(K.cal,a);renderCalendar();alert('勤務予定を保存しました。');
+}
+function clearCalendar(){calMemo.value='';calType.value='work';calIn.value='09:00';calOut.value='18:00';calBreak.value='60'}
+function calLabel(t){return ({work:'勤務予定',scheduled_off:'所定休日',statutory_off:'法定休日',holiday:'祝日',paid_leave:'有給休暇',absence:'欠勤',late:'遅刻',early_leave:'早退'})[t]||t}
+function renderCalendar(){
+  let m=calMonth.value,id=calMonthEmp.value;
+  let rows=calendarData().filter(x=>String(x.date).startsWith(m)&&String(x.employeeId)===String(id)).sort((a,b)=>String(a.date).localeCompare(String(b.date)));
+  calTable.innerHTML='<div class="tableWrap"><table><thead><tr><th>日付</th><th>区分</th><th>予定</th><th>休憩</th><th>メモ</th><th>削除</th></tr></thead><tbody>'+
+  rows.map(x=>`<tr><td>${x.date}</td><td>${calLabel(x.type)}</td><td>${x.start||''}〜${x.end||''}</td><td>${x.breakMin||0}分</td><td>${htmlEsc(x.memo||'')}</td><td><button onclick="deleteCalendar('${x.id}')">削除</button></td></tr>`).join('')+'</tbody></table></div>';
+}
+function deleteCalendar(id){save(K.cal,calendarData().filter(x=>x.id!==id));renderCalendar()}
+function applyCalendarToTimecard(){
+  let m=calMonth.value,id=calMonthEmp.value;
+  let rows=calendarData().filter(x=>String(x.date).startsWith(m)&&String(x.employeeId)===String(id)&&x.type==='work');
+  if(!rows.length){alert('勤務予定がありません。');return}
+  // 予定をタイムカード入力画面へ移すため、先頭勤務日をセット。
+  let x=rows[0];tcDate.value=x.date;tcEmp.value=x.employeeId;tcIn.value=x.start||'09:00';tcOut.value=x.end||'18:00';tcBreak.value=x.breakMin||0;
+  alert('最初の勤務予定をタイムカード入力欄へ反映しました。日ごとに保存してください。');
+}
+function workSettings(){let x=read(K.ws,{});return x&&typeof x==='object'?x:{}}
+function saveWorkSetting(){
+  let id=wsEmp.value;if(!id){alert('従業員を選択してください。');return}
+  let a=workSettings();a[id]={type:wsType.value,daily:Number(wsDaily.value)||8,weekly:Number(wsWeekly.value)||40,breakMin:Number(wsBreak.value)||0,start:wsStart.value,end:wsEnd.value,savedAt:new Date().toISOString()};
+  save(K.ws,a);wsResult.innerHTML='<p class="ok">勤務条件を保存しました。</p>';
+}
+function loadWorkSetting(){
+  let id=wsEmp.value,x=workSettings()[id];
+  if(!x){wsResult.innerHTML='<p class="warn">この従業員の勤務条件は未登録です。</p>';return}
+  wsType.value=x.type||'standard';wsDaily.value=x.daily??8;wsWeekly.value=x.weekly??40;wsBreak.value=x.breakMin??60;wsStart.value=x.start||'09:00';wsEnd.value=x.end||'18:00';
+  wsResult.innerHTML='<p class="ok">保存済み勤務条件を読み込みました。</p>';
+}
+function populateWorkSettings(){
+  let es=employees();wsEmp.innerHTML=es.length?es.map(e=>`<option value="${empId(e)}">${htmlEsc(empName(e))} (${htmlEsc(empId(e))})</option>`).join(''):'<option value="">従業員マスターなし</option>';
+  if(es.length)loadWorkSetting();
+}
+function dailyWorkRule(x){
+  let id=x.employeeId,ws=workSettings()[id]||{type:'standard',daily:8,weekly:40};
+  let actual=x.minutes/60;
+  if(x.holiday==='statutory') return {normal:0,overtime:0,holiday:actual,night:0,setting:ws};
+  let daily=Math.max(0,Number(ws.daily)||8);
+  return {normal:Math.min(actual,daily),overtime:Math.max(0,actual-daily),holiday:0,night:0,setting:ws};
+}
+function timecards(){let x=read(K.tc,[]);return Array.isArray(x)?x:[]}
+function saveTimecard(){
+  let date=tcDate.value,id=tcEmp.value,inn=tcIn.value,out=tcOut.value,br=Number(tcBreak.value)||0,holiday=tcHoliday.value;
+  if(!date||!id||!inn||!out){alert('日付・従業員・始業・終業を入力してください。');return}
+  let a=new Date('2000-01-01T'+inn+':00'),b=new Date('2000-01-01T'+out+':00');
+  if(b<=a)b.setDate(b.getDate()+1);
+  let mins=Math.max(0,(b-a)/60000-br),r={id:Date.now().toString(),date,employeeId:id,start:inn,end:out,breakMin:br,holiday,minutes:Math.round(mins)};
+  let arr=timecards();arr.push(r);save(K.tc,arr);renderTimecards();alert('勤務を保存しました。');
+}
+function clearTimecard(){tcIn.value='';tcOut.value='';tcBreak.value='60';tcHoliday.value='workday'}
+function renderTimecards(){
+  let m=tcMonth.value,id=tcMonthEmp.value;
+  let rows=timecards().filter(x=>(!m||String(x.date).startsWith(m))&&(!id||String(x.employeeId)===String(id))).sort((a,b)=>String(a.date).localeCompare(String(b.date)));
+  tcResult.innerHTML='<div class="tableWrap"><table><thead><tr><th>日付</th><th>従業員</th><th>始業</th><th>終業</th><th>休憩</th><th>実働</th><th>区分</th><th>削除</th></tr></thead><tbody>'+
+  rows.map(x=>{let e=findEmp(x.employeeId);return `<tr><td>${x.date}</td><td>${htmlEsc(empName(e)||x.employeeId)}</td><td>${x.start}</td><td>${x.end}</td><td>${x.breakMin}分</td><td>${(x.minutes/60).toFixed(2)}h</td><td>${x.holiday==='statutory'?'法定休日':x.holiday==='scheduled'?'所定休日':'通常日'}</td><td><button onclick="deleteTimecard('${x.id}')">削除</button></td></tr>`}).join('')+'</tbody></table></div>';
+}
+function deleteTimecard(id){save(K.tc,timecards().filter(x=>x.id!==id));renderTimecards()}
+function aggregateTimecard(){
+  let m=tcMonth.value,id=tcMonthEmp.value;
+  let rows=timecards().filter(x=>String(x.date).startsWith(m)&&String(x.employeeId)===String(id)).sort((a,b)=>String(a.date).localeCompare(String(b.date)));
+  let ws=workSettings()[id]||{type:'standard',daily:8,weekly:40};
+  let normal=0,ot=0,holiday=0,night=0;
+  for(const x of rows){
+    let a=new Date('2000-01-01T'+x.start+':00'),b=new Date('2000-01-01T'+x.end+':00');if(b<=a)b.setDate(b.getDate()+1);
+    let mins=Math.max(0,(b-a)/60000-(Number(x.breakMin)||0)),h=mins/60;
+    if(x.holiday==='statutory'){holiday+=h}
+    else{
+      let daily=Math.max(0,Number(ws.daily)||8);
+      normal+=Math.min(h,daily);ot+=Math.max(0,h-daily);
+    }
+    // 深夜22:00〜5:00
+    for(let t=new Date(a);t<b;t.setMinutes(t.getMinutes()+1)){let hh=t.getHours();if(hh>=22||hh<5)night+=1/60}
+  }
+  // 週40時間を超える時間は法定時間外の可能性があるため警告・集計補正。
+  // 同じ時間を二重計上しないよう、日別時間外を下限として扱う。
+  let weeks={};
+  for(const x of rows){let d=new Date(x.date+'T00:00:00'),key=d.getFullYear()+'-'+Math.floor((Math.floor((d-new Date(d.getFullYear(),0,1))/86400000)+new Date(d.getFullYear(),0,1).getDay())/7);weeks[key]=(weeks[key]||0)+x.minutes/60}
+  let weeklyOver=Object.values(weeks).reduce((a,v)=>a+Math.max(0,v-(Number(ws.weekly)||40)),0);
+  let over60=Math.max(0,ot-60);
+  window._tcAgg={month:m,employeeId:id,totalHours:normal+ot+holiday,normalHours:normal,overtimeHours:ot,overtimeOver60:over60,holidayHours:holiday,nightHours:night,weeklyOvertime:weeklyOver,workSetting:ws};
+  let mode=ws.type==='variable'?'<span class="warn">変形労働時間制等：法定時間外は要確認</span>':'通常勤務';
+  tcSummary.innerHTML=`<div class="kpis"><div class="kpi"><span>実働合計</span><b>${(normal+ot+holiday).toFixed(2)}h</b></div><div class="kpi"><span>所定内</span><b>${normal.toFixed(2)}h</b></div><div class="kpi"><span>日別時間外</span><b>${ot.toFixed(2)}h</b></div><div class="kpi"><span>週40h超の目安</span><b>${weeklyOver.toFixed(2)}h</b></div><div class="kpi"><span>60時間超</span><b>${over60.toFixed(2)}h</b></div><div class="kpi"><span>法定休日</span><b>${holiday.toFixed(2)}h</b></div><div class="kpi"><span>深夜</span><b>${night.toFixed(2)}h</b></div></div><p class="note">勤務形態：${mode}｜1日所定 ${ws.daily||8}h・週所定 ${ws.weekly||40}h</p>`;
+}
+function applyTimecardToPayroll(){
+  aggregateTimecard();let r=window._tcAgg;if(!r)return;
+  document.getElementById('payMonth').value=r.month;document.getElementById('emp').value=r.employeeId;loadEmployee();
+  document.getElementById('payMethod').value='hourly';document.getElementById('normalHours').value=r.normalHours.toFixed(2);
+  document.getElementById('overtimeHours').value=r.overtimeHours.toFixed(2);document.getElementById('nightHours').value=r.nightHours.toFixed(2);
+  document.getElementById('holidayHours').value=r.holidayHours.toFixed(2);document.getElementById('nightOverHours').value='0';
+  alert('勤務時間を給与計算画面へ反映しました。時給と通勤手当等を確認して計算してください。');
+}
+function socialScreen(){let sr=+document.getElementById('socialStd').value, care=document.getElementById('careMode').value==='yes',m=document.getElementById('socialMonth').value||'2026-09',r=social(sr,care,m);document.getElementById('socialResult').innerHTML=`<div class="kpis"><div class="kpi"><span>健康保険</span><b>${yen(r.health)}円</b></div><div class="kpi"><span>介護保険</span><b>${yen(r.care)}円</b></div><div class="kpi"><span>支援金</span><b>${yen(r.support)}円</b></div><div class="kpi"><span>厚生年金</span><b>${yen(r.pension)}円</b></div><div class="kpi"><span>本人負担合計</span><b>${yen(r.health+r.care+r.support+r.pension)}円</b></div></div>`}
+function calcTaxScreen(){let a=+taxAfter.value,sp=taxSpouse.value==='1',d=+taxDeps.value,mode=taxMode.value;if(mode==='bonus'){taxResult.innerHTML='<p class="warn">賞与は前月給与・社会保険料控除後額、扶養親族等の数、賞与の支給額等により算出率表または月額表を使い分けます。公式表で確認してください。</p>';return}let t=mode==='kou'?taxKou(a,sp,d):taxOtsu(a);taxResult.innerHTML=`<div class="kpi"><span>計算結果</span><b>${yen(t)}円</b></div><p class="note">${mode==='kou'?'甲欄の電算機計算特例（令和8年分公式式）':'乙欄の電算計算式'}による計算です。令和8年分公式資料との照合を推奨します。</p>`}
+function refreshSlip(){let hs=histories();slipSel.innerHTML=hs.slice().reverse().map((r,i)=>`<option value="${htmlEsc(r.key)}">${htmlEsc(r.payrollMonth)}｜${htmlEsc(r.employeeName)}｜手取 ${yen(r.netPay)}円</option>`).join('')||'<option>保存済み明細なし</option>'}
+function showSlip(){let key=slipSel.value,r=histories().find(x=>x.key===key);if(!r)return;let c=read(K.company,{});document.getElementById('slipView').innerHTML=`<div class="slip"><div class="company">${htmlEsc(c.name||'')}<br>${htmlEsc(c.address||'')}<br>${htmlEsc(c.tel||'')}</div><h2>給与明細書</h2><p>支給対象：${htmlEsc(r.payrollMonth)}　支給日：${htmlEsc(c.payday||'')}</p><p>従業員：${htmlEsc(r.employeeName)}　ID：${htmlEsc(r.employeeId)}</p><table><tbody>
+<tr><th>基本給</th><td>${yen(r.basePay)}円</td><th>時間給等</th><td>${yen(r.timePay)}円</td></tr><tr><th>各種手当</th><td>${yen(r.allowances)}円</td><th>通勤手当</th><td>${yen(r.commute)}円</td></tr><tr><th>その他支給</th><td>${yen(r.otherPay)}円</td><th>総支給</th><td>${yen(r.gross)}円</td></tr>
+<tr><th>健康保険</th><td>${yen(r.health)}円</td><th>介護保険</th><td>${yen(r.care)}円</td></tr><tr><th>支援金</th><td>${yen(r.support)}円</td><th>厚生年金</th><td>${yen(r.pension)}円</td></tr><tr><th>雇用保険</th><td>${yen(r.employmentInsurance)}円</td><th>源泉所得税</th><td>${yen(r.withholdingTax)}円</td></tr><tr><th>住民税</th><td>${yen(r.residentTax)}円</td><th>控除合計</th><td>${yen(r.socialInsurance+r.employmentInsurance+r.withholdingTax+r.residentTax)}円</td></tr>
+<tr><th colspan="3">差引支給額</th><td class="net">${yen(r.netPay)}円</td></tr></tbody></table></div>`}
+function annualCalc(){let y=String(document.getElementById('annualYear').value),id=document.getElementById('annualEmp').value;let rows=histories().filter(r=>String(r.payrollMonth||'').startsWith(y)&&(!id||String(r.employeeId)===String(id)));if(!rows.length){annualResult.innerHTML='<p class="warn">該当する保存給与がありません。</p>';return}let sum=k=>rows.reduce((a,r)=>a+money(r[k]),0);annualResult.innerHTML=`<div class="kpis"><div class="kpi"><span>件数</span><b>${rows.length}</b></div><div class="kpi"><span>総支給</span><b>${yen(sum('gross'))}円</b></div><div class="kpi"><span>社会保険</span><b>${yen(sum('socialInsurance'))}円</b></div><div class="kpi"><span>雇用保険</span><b>${yen(sum('employmentInsurance'))}円</b></div><div class="kpi"><span>源泉税</span><b>${yen(sum('withholdingTax'))}円</b></div><div class="kpi"><span>住民税</span><b>${yen(sum('residentTax'))}円</b></div><div class="kpi"><span>年間手取</span><b>${yen(sum('netPay'))}円</b></div></div><div class="tableWrap"><table><thead><tr><th>月</th><th>総支給</th><th>社保</th><th>雇保</th><th>源泉</th><th>住民税</th><th>手取</th></tr></thead><tbody>${rows.sort((a,b)=>String(a.payrollMonth).localeCompare(String(b.payrollMonth))).map(r=>`<tr><td>${r.payrollMonth}</td><td>${yen(r.gross)}</td><td>${yen(r.socialInsurance)}</td><td>${yen(r.employmentInsurance)}</td><td>${yen(r.withholdingTax)}</td><td>${yen(r.residentTax)}</td><td>${yen(r.netPay)}</td></tr>`).join('')}</tbody></table></div>`}
+function yearEndCalc(){let y=String(yeYear.value),id=yeEmp.value,rows=histories().filter(r=>String(r.payrollMonth||'').startsWith(y)&&String(r.employeeId)===String(id));let withheld=rows.reduce((a,r)=>a+money(r.withholdingTax),0),finalTax=money(yeFinalTax.value);yeWithheld.value=withheld;let diff=withheld-finalTax;yearendResult.innerHTML=`<div class="kpi"><span>${diff>=0?'還付見込':'追加徴収見込'}（入力した年調年税額との差額）</span><b>${yen(Math.abs(diff))}円</b></div><p class="note">年間源泉徴収済額 ${yen(withheld)}円｜年調年税額 ${yen(finalTax)}円</p>`}
+function saveYearEnd(){let a=read(K.ye,[]);if(!Array.isArray(a))a=[];let y=String(yeYear.value),id=yeEmp.value;let rec={year:y,employeeId:id,finalTax:money(yeFinalTax.value),withheld:money(yeWithheld.value),savedAt:new Date().toISOString()};let i=a.findIndex(x=>x.year===y&&String(x.employeeId)===String(id));if(i>=0)a[i]=rec;else a.push(rec);save(K.ye,a);alert('年末調整データを保存しました。')}
+
+function renderCloseStatus(){
+ let m=dashMonth.value,at=read(K.att,[]);if(!Array.isArray(at))at=[];
+ let hs=histories().filter(r=>r.payrollMonth===m),ids=[...new Set([...at.filter(x=>x.month===m).map(x=>String(x.employeeId)),...hs.map(x=>String(x.employeeId))])];
+ closeResult.innerHTML='<div class="tableWrap"><table><thead><tr><th>従業員ID</th><th>勤怠</th><th>給与</th><th>明細</th></tr></thead><tbody>'+
+ ids.map(id=>{let a=at.find(x=>x.month===m&&String(x.employeeId)===id),h=hs.find(x=>String(x.employeeId)===id);return `<tr><td>${htmlEsc(id)}</td><td>${a?'集計済':'未集計'}</td><td>${h?'保存済':'未計算'}</td><td>${h?'発行可能':'－'}</td></tr>`}).join('')+'</tbody></table></div>';
+}
+function allHistoryMonth(m){return histories().filter(r=>r.payrollMonth===m)}
+function renderDashboard(){
+  let m=dashMonth.value,y=String(dashYear.value),rows=allHistoryMonth(m),year=histories().filter(r=>String(r.payrollMonth||'').startsWith(y));
+  let sum=(a,k)=>a.reduce((x,r)=>x+money(r[k]),0);
+  let tc=read(K.att,[]);if(!Array.isArray(tc))tc=[];
+  let tcm=tc.filter(x=>x.month===m);
+  dashResult.innerHTML=`<div class="kpis"><div class="kpi"><span>従業員数</span><b>${employees().length}</b></div><div class="kpi"><span>給与計算済</span><b>${rows.length}</b></div><div class="kpi"><span>総支給</span><b>${yen(sum(rows,'gross'))}円</b></div><div class="kpi"><span>社会保険</span><b>${yen(sum(rows,'socialInsurance'))}円</b></div><div class="kpi"><span>雇用保険</span><b>${yen(sum(rows,'employmentInsurance'))}円</b></div><div class="kpi"><span>源泉税</span><b>${yen(sum(rows,'withholdingTax'))}円</b></div><div class="kpi"><span>住民税</span><b>${yen(sum(rows,'residentTax'))}円</b></div><div class="kpi"><span>手取総額</span><b>${yen(sum(rows,'netPay'))}円</b></div><div class="kpi"><span>年間給与</span><b>${yen(sum(year,'gross'))}円</b></div></div>
+  <p class="note">勤怠集計保存件数：${tcm.length}｜給与台帳と勤怠の締め状況を確認してください。</p>`;
+}
+function populateAdvancedEmployees(){
+  let es=employees(),ids=['laborEmp','smEmp','bonusEmp','taxDocEmp','bankEmp'];
+  ids.forEach(id=>{let el=document.getElementById(id);if(el)el.innerHTML=es.length?es.map(e=>`<option value="${empId(e)}">${htmlEsc(empName(e))} (${htmlEsc(empId(e))})</option>`).join(''):'<option value="">従業員マスターなし</option>'});
+}
+function renderLabor(){
+  let id=laborEmp.value,rows=histories().filter(r=>String(r.employeeId)===String(id)).sort((a,b)=>String(a.payrollMonth).localeCompare(String(b.payrollMonth)));
+  let at=read(K.att,[]);if(!Array.isArray(at))at=[];
+  let monthRows=rows.slice(-12).map(r=>({month:r.payrollMonth,ot:Number(r.overtimeHours)||0,holiday:Number(r.holidayHours)||0}));
+  const monthsWithHistory=new Set(monthRows.map(x=>x.month));
+  for(const a of at.filter(x=>String(x.employeeId)===String(id))){
+    if(!monthsWithHistory.has(a.month))monthRows.push({month:a.month,ot:Number(a.overtimeHours)||0,holiday:Number(a.holidayHours)||0});
+  }
+  monthRows.sort((a,b)=>String(a.month).localeCompare(String(b.month)));
+  monthRows=monthRows.slice(-12);
+  let annual=monthRows.reduce((a,r)=>a+r.ot,0);
+  let last=monthRows.length?monthRows[monthRows.length-1]:{ot:0,holiday:0};
+  let m=last.ot,limit=Number(laborMonthly.value)||45,annualLimit=Number(laborAnnual.value)||360,special=laborSpecial.value==='1';
+  let flags=[];if(m>limit)flags.push('月間設定上限超過');if(annual>annualLimit)flags.push('年間設定上限超過');if(!special&&m>45)flags.push('原則45時間超');
+  laborResult.innerHTML=`<div class="kpis"><div class="kpi"><span>直近月時間外</span><b>${m.toFixed(2)}h</b></div><div class="kpi"><span>直近12か月累計</span><b>${annual.toFixed(2)}h</b></div><div class="kpi"><span>設定月上限</span><b>${limit}h</b></div><div class="kpi"><span>設定年上限</span><b>${annualLimit}h</b></div></div><p class="${flags.length?'bad':'ok'}">${flags.length?flags.join('／'):'設定した上限内です（簡易チェック）'}</p><p class="note">勤怠集計または保存給与から時間外時間を取得しています。休日労働を含む月100時間未満・複数月平均80時間以内・年6回以内等の法定判定は別途確認が必要です。</p>`;
+}
+function socialStatuses(){let x=read(K.socialStatus,{});return x&&typeof x==='object'?x:{}}
+function saveSocialStatus(){let id=smEmp.value,a=socialStatuses();a[id]={hire:smHire.value,acquire:smAcquire.value,lose:smLose.value,savedAt:new Date().toISOString()};save(K.socialStatus,a);smStatus.innerHTML='<p class="ok">社会保険資格情報を保存しました。</p>'}
+function calcSocialReview(){
+  let vals=[+aprPay.value||0,+mayPay.value||0,+junPay.value||0],avg=vals.reduce((a,b)=>a+b,0)/3,cur=+curStd.value||0;
+  let msg=avg?`4〜6月平均報酬：${yen(avg)}円｜現標準報酬：${yen(cur)}円。実際の等級判定は公式標準報酬表と支払基礎日数等を確認してください。`:'報酬を入力してください。';
+  smReview.innerHTML=`<p>${msg}</p>${fixedChange.value==='1'?'<p class="warn">固定的賃金の変動あり。随時改定の3か月判定を確認してください。</p>':''}`;
+}
+function calcBonus(){let g=money(bonusGross.value),rate=Number(bonusTaxRate.value)||0,tax=money(g*rate),net=g-tax;bonusResult.innerHTML=`<div class="kpis"><div class="kpi"><span>賞与総額</span><b>${yen(g)}円</b></div><div class="kpi"><span>入力税率による源泉</span><b>${yen(tax)}円</b></div><div class="kpi"><span>税引後</span><b>${yen(net)}円</b></div></div>`}
+function saveBonus(){let a=read(K.bonus,[]);if(!Array.isArray(a))a=[];a.push({employeeId:bonusEmp.value,gross:money(bonusGross.value),std:money(bonusStd.value),taxRate:Number(bonusTaxRate.value)||0,savedAt:new Date().toISOString()});save(K.bonus,a);alert('賞与を保存しました。')}
+function bankAccounts(){let x=read(K.bank,{});return x&&typeof x==='object'?x:{}}
+function addBankAccount(){let a=bankAccounts();let id=bankEmp.value||emp.value;a[id]={bankCode:bankCode.value,branchCode:branchCode.value,type:bankType.value,accountNo:accountNo.value,accountName:accountName.value};save(K.bank,a);bankResult.innerHTML='<p class="ok">振込先を保存しました。</p>'}
+function exportBankCSV(){let m=bankMonth.value,rows=histories().filter(r=>r.payrollMonth===m),ba=bankAccounts(),data=[['給与月','従業員ID','氏名','振込額','銀行コード','支店コード','種目','口座番号','名義カナ'],...rows.map(r=>{let b=ba[r.employeeId]||{};return [m,r.employeeId,r.employeeName,r.netPay,b.bankCode||'',b.branchCode||'',b.type||'1',b.accountNo||'',b.accountName||'']})];let csv='\ufeff'+data.map(a=>a.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');let u=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'})),a=document.createElement('a');a.href=u;a.download=`payroll_transfer_${m}.csv`;a.click();URL.revokeObjectURL(u)}
+function renderTaxDoc(){let y=String(taxDocYear.value),id=taxDocEmp.value,rows=histories().filter(r=>String(r.payrollMonth||'').startsWith(y)&&String(r.employeeId)===String(id)),sum=k=>rows.reduce((a,r)=>a+money(r[k]),0);taxDocResult.innerHTML=`<div class="kpis"><div class="kpi"><span>年間給与</span><b>${yen(sum('gross'))}円</b></div><div class="kpi"><span>社会保険</span><b>${yen(sum('socialInsurance'))}円</b></div><div class="kpi"><span>雇用保険</span><b>${yen(sum('employmentInsurance'))}円</b></div><div class="kpi"><span>源泉税</span><b>${yen(sum('withholdingTax'))}円</b></div><div class="kpi"><span>住民税</span><b>${yen(sum('residentTax'))}円</b></div></div>`}
+function exportTaxCSV(){let y=String(taxDocYear.value),id=taxDocEmp.value,rows=histories().filter(r=>String(r.payrollMonth||'').startsWith(y)&&String(r.employeeId)===String(id)),data=[['年','従業員ID','氏名','年間給与','社会保険','雇用保険','源泉税','住民税'],...rows.map(r=>[y,r.employeeId,r.employeeName,r.gross,r.socialInsurance,r.employmentInsurance,r.withholdingTax,r.residentTax])];let csv='\ufeff'+data.map(a=>a.join(',')).join('\n'),u=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'})),a=document.createElement('a');a.href=u;a.download=`tax_${id}_${y}.csv`;a.click();URL.revokeObjectURL(u)}
+function calcYeV74(){let t=money(yeTax.value),w=money(yeWithhold.value),d=w-t;yeV74Result.innerHTML=`<p class="${d>=0?'ok':'warn'}">${d>=0?'還付':'追加徴収'}：${yen(Math.abs(d))}円</p>`}
+function saveUserRole(){let a=read(K.users,[]);if(!Array.isArray(a))a=[];a.push({name:userName.value,role:userRole.value,savedAt:new Date().toISOString()});save(K.users,a);userResult.innerHTML='<p class="ok">利用者設定を保存しました。</p>'}
+function backupVersioned(){let stamp=new Date().toISOString().replace(/[:.]/g,'-');let keys=[...K.emp,...K.std,...K.items,K.hist[0],K.company,K.ye,K.tc,K.ws,K.cal,K.pl,K.plb,K.att,K.socialStatus,K.bonus,K.bank,K.audit,K.users,K.labor];let obj={version:'V74',createdAt:new Date().toISOString()};keys.forEach(k=>{let v=localStorage.getItem(k);if(v!==null)obj[k]=v});let b=new Blob([JSON.stringify(obj,null,2)],{type:'application/json'}),u=URL.createObjectURL(b),a=document.createElement('a');a.href=u;a.download=`nara_payroll_V74_${stamp}.json`;a.click();URL.revokeObjectURL(u);backupResult.innerHTML='<p class="ok">世代番号付きバックアップを作成しました。</p>'}
+function addAudit(){let a=read(K.audit,[]);if(!Array.isArray(a))a=[];a.push({action:auditAction.value,target:auditTarget.value,reason:auditReason.value,at:new Date().toISOString()});save(K.audit,a);renderAudit()}
+function renderAudit(){let a=read(K.audit,[]);if(!Array.isArray(a))a=[];auditResult.innerHTML='<div class="tableWrap"><table><thead><tr><th>日時</th><th>操作</th><th>対象</th><th>理由</th></tr></thead><tbody>'+a.slice(-50).reverse().map(x=>`<tr><td>${x.at}</td><td>${htmlEsc(x.action)}</td><td>${htmlEsc(x.target)}</td><td>${htmlEsc(x.reason)}</td></tr>`).join('')+'</tbody></table></div>'}
+
+const V74_DATA_KEYS=[
+'naraPayrollEmployees','naraEmployees','employees','employeeMaster',
+'naraPayrollStandardRemunerations','naraPayrollStandardRemunerationHistory','naraStandardRemunerationHistory',
+'naraPayrollPayItems','naraPayrollSalaryHistory','naraPayrollCompanySettings','naraPayrollYearEnd',
+'naraPayrollTimecards','naraPayrollWorkSettings','naraPayrollWorkCalendar','naraPayrollPaidLeave',
+'naraPayrollPaidLeaveBalances','naraPayrollAttendanceSummaries','naraPayrollSocialStatus',
+'naraPayrollBonuses','naraPayrollBankAccounts','naraPayrollAuditLog','naraPayrollUsers','naraPayrollLaborRules',
+'naraPayrollCurrentEmployee','naraPayrollCurrentStandardRemuneration','naraPayrollCurrentDependents',
+'naraPayrollCurrentResidentTax'
+];
+function refreshDataManagement(){
+ const count=k=>{try{let v=JSON.parse(localStorage.getItem(k)||'null');return Array.isArray(v)?v.length:(v&&typeof v==='object'?Object.keys(v).length:(v==null?0:1))}catch(e){return localStorage.getItem(k)?1:0}};
+ dmEmpCount.textContent=Math.max(count('naraPayrollEmployees'),count('naraEmployees'),count('employees'),count('employeeMaster'));
+ dmHistCount.textContent=count('naraPayrollSalaryHistory');
+ dmTcCount.textContent=count('naraPayrollTimecards');
+ dmLeaveCount.textContent=count('naraPayrollPaidLeave');
+ dmResult.innerHTML='<p class="ok">保存データを確認しました。削除する場合は「V74データを全削除」を押してください。</p>';
+}
+function confirmClearAllV74(){
+ const first=confirm('⚠️ V74に保存された給与・勤怠・従業員等のデータをすべて削除します。\\n\\n先にJSONバックアップを作成しましたか？');
+ if(!first)return;
+ const second=prompt('確認のため「DELETE」と入力してください。');
+ if(second!=='DELETE'){
+   dmResult.innerHTML='<p class="warn">削除を中止しました。入力が一致しません。</p>';
+   return;
+ }
+ let removed=0;
+ V74_DATA_KEYS.forEach(k=>{
+   if(localStorage.getItem(k)!==null){localStorage.removeItem(k);removed++;}
+ });
+ dmResult.innerHTML=`<p class="ok">V74データを初期化しました。${removed}個の保存領域を削除しました。</p><p>ページを再読み込みすると完全な初期状態になります。</p>`;
+ setTimeout(()=>location.reload(),700);
+}
+
+function saveSettings(){save(K.company,{name:coName.value,payday:payday.value,address:coAddr.value,tel:coTel.value});alert('会社設定を保存しました。')}
+function loadSettings(){let c=read(K.company,{});coName.value=c.name||'';payday.value=c.payday||'';coAddr.value=c.address||'';coTel.value=c.tel||''}
+function exportCSV(kind){let rows=[];if(kind==='month'){let m=ledgerMonth.value;rows=histories().filter(r=>r.payrollMonth===m)}else{let y=String(annualYear.value);rows=histories().filter(r=>String(r.payrollMonth||'').startsWith(y))}if(!rows.length){alert('出力対象がありません。');return}let head=['給与年月','従業員ID','氏名','総支給','社会保険','雇用保険','源泉所得税','住民税','差引支給額'];let body=rows.map(r=>[r.payrollMonth,r.employeeId,r.employeeName,r.gross,r.socialInsurance,r.employmentInsurance,r.withholdingTax,r.residentTax,r.netPay]);let csv='\ufeff'+[head,...body].map(a=>a.map(v=>`"${String(v??'').replace(/"/g,'""')}"`).join(',')).join('\n');let b=new Blob([csv],{type:'text/csv;charset=utf-8'}),u=URL.createObjectURL(b),a=document.createElement('a');a.href=u;a.download=`nara_payroll_${kind}_${new Date().toISOString().slice(0,10)}.csv`;a.click();URL.revokeObjectURL(u)}
+function backup(){let keys=[...K.emp,...K.std,...K.items,K.hist[0],K.company,K.ye,K.tc,K.ws,K.cal,K.pl,K.plb,K.att,K.socialStatus,K.bonus,K.bank,K.audit,K.users,K.labor];let obj={version:'V74',createdAt:new Date().toISOString()};keys.forEach(k=>{let v=localStorage.getItem(k);if(v!==null)obj[k]=v});let b=new Blob([JSON.stringify(obj,null,2)],{type:'application/json'}),u=URL.createObjectURL(b),a=document.createElement('a');a.href=u;a.download='nara_payroll_V74_backup.json';a.click();URL.revokeObjectURL(u)}
+function restore(inp){let f=inp.files[0];if(!f)return;let r=new FileReader();r.onload=()=>{try{let o=JSON.parse(r.result);for(const k of Object.keys(o))if(k!=='version'&&k!=='createdAt')localStorage.setItem(k,o[k]);alert('復元しました。画面を再読み込みします。');location.reload()}catch(e){alert('JSONが正しくありません。')}};r.readAsText(f)}
+function init(){document.querySelectorAll('#nav [data-s]').forEach(b=>b.onclick=()=>{document.querySelectorAll('section').forEach(s=>s.classList.remove('activeSection'));let target=document.getElementById(b.dataset.s);if(target)target.classList.add('activeSection');document.querySelectorAll('#nav [data-s]').forEach(x=>x.classList.remove('active'));b.classList.add('active')});
+let now=new Date(),ym=now.toISOString().slice(0,7);for(const id of ['payMonth','ledgerMonth','socialMonth','tcMonth','calMonth','attMonth','dashMonth','bankMonth'])document.getElementById(id).value=ym; document.getElementById('plYear').value=new Date().getFullYear(); document.getElementById('plDate').value=new Date().toISOString().slice(0,10); document.getElementById('tcDate').value=new Date().toISOString().slice(0,10); document.getElementById('calDate').value=new Date().toISOString().slice(0,10);
+stdOptions(document.getElementById('std'));stdOptions(document.getElementById('socialStd'));loadEmpSelects(); populateTcEmployees(); populateWorkSettings(); populateCalendarEmployees(); populatePaidLeaveEmployees(); populateAttendanceEmployees(); populateAdvancedEmployees(); loadSettings();refreshSlip(); renderAudit();
+emp.onchange=loadEmployee;payMonth.onchange=loadEmployee;socialStd.onchange=socialScreen;careMode.onchange=socialScreen;socialMonth.onchange=socialScreen;
+let hash=(location.hash||'').slice(1);let firstTab=document.querySelector('#nav [data-s]');let startTab=(hash&&document.querySelector(`#nav [data-s='${hash}']`))||firstTab;if(startTab)startTab.click();loadEmployee();socialScreen();renderTimecards();}
+init();
+</script>
+
+<script>
+if ('serviceWorker' in navigator && location.protocol === 'https:') {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js').catch(() => {});
+  });
+}
+</script>
+
+</body></html>
