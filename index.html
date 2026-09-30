@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>奈良県 給与計算アプリ V75</title>
+<title>奈良県 総合労務・給与管理システム V75.1</title>
 <style>
 :root{--bg:#f5f7fa;--card:#fff;--ink:#172033;--muted:#667085;--line:#d9dee7;--accent:#2457d6;--good:#0b7a45;--warn:#9a6500;--bad:#b42318}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue","Noto Sans JP",Arial,sans-serif}
@@ -31,14 +31,41 @@ button.danger{background:#b42318!important;color:#fff!important;border-color:#b4
 <meta name="theme-color" content="#172033">
 </head>
 <body>
-<header><h1>奈良県 給与計算アプリ V75</h1><small>V74.2ベース｜総合労務・給与管理システム</small></header>
-<nav id="nav">
+<header><h1>奈良県 総合労務・給与管理システム V75.1</h1><small>V74.2ベース｜総合労務・給与管理システム</small></header>
+<nav id="nav"><a class="navTab" data-s="employees" href="#employees">従業員マスター</a>
 <a class="navTab" data-s="calc" href="#calc">給与計算</a><a class="navTab" data-s="dashboard" href="#dashboard">V74 ダッシュボード</a><a class="navTab" data-s="labor" href="#labor">V64 36協定</a><a class="navTab" data-s="socialm" href="#socialm">V65-66 社保</a><a class="navTab" data-s="bonusm" href="#bonusm">V67 賞与</a><a class="navTab" data-s="bank" href="#bank">V68 振込</a><a class="navTab" data-s="taxdocs" href="#taxdocs">V69-70 税務</a><a class="navTab" data-s="privacy" href="#privacy">V71-73 管理</a><a class="navTab" data-s="dataManage" href="#dataManage">データ管理</a><a class="navTab" data-s="attendance" href="#attendance">月間勤怠</a><a class="navTab" data-s="paidleave" href="#paidleave">有給休暇</a><a class="navTab" data-s="calendar" href="#calendar">勤務カレンダー</a><a class="navTab" data-s="timecard" href="#timecard">タイムカード</a><a class="navTab" data-s="ledger" href="#ledger">V50 給与台帳</a>
 <a class="navTab" data-s="social" href="#social">V51 社会保険</a><a class="navTab" data-s="tax" href="#tax">V52 源泉税</a>
 <a class="navTab" data-s="slip" href="#slip">V53 給与明細</a><a class="navTab" data-s="annual" href="#annual">V54 年間台帳</a>
 <a class="navTab" data-s="yearend" href="#yearend">V55 年末調整</a><a class="navTab" data-s="settings" href="#settings">会社設定</a>
 </nav>
 <main>
+
+<section id="employees">
+<div class="card">
+<h2>従業員マスター</h2>
+<div class="grid">
+<div><label>従業員ID</label><input id="eId" placeholder="自動発行"></div>
+<div><label>氏名</label><input id="eName"></div>
+<div><label>生年月日</label><input id="eBirth" type="date"></div>
+<div><label>入社日</label><input id="eHire" type="date"></div>
+<div><label>退職日（未退職は空欄）</label><input id="eLeave" type="date"></div>
+<div><label>給与形態</label><select id="eType"><option value="monthly">月給</option><option value="hourly">時給</option></select></div>
+<div><label>扶養親族等の数（源泉用・配偶者除く）</label><input id="eDeps" type="number" min="0" value="0"></div>
+<div><label>源泉控除対象配偶者</label><select id="eSpouse"><option value="no">なし</option><option value="yes">あり</option></select></div>
+<div><label>短期雇用・丙欄対象</label><select id="eHeiEligible"><option value="no">対象外</option><option value="yes">対象</option></select></div>
+<div><label>社会保険</label><select id="eSocial"><option value="yes">加入</option><option value="no">未加入</option></select></div>
+<div><label>雇用保険</label><select id="eEmployment"><option value="yes">加入</option><option value="no">未加入</option></select></div>
+<div><label>社会保険の報酬月額</label><input id="eSocialRem" type="number" min="0" value="300000"></div>
+</div>
+<div class="actions">
+<button class="btn" onclick="saveEmployeeMaster()">登録・更新</button>
+<button class="btn secondary" onclick="clearEmployeeMaster()">新規入力</button>
+</div>
+<div id="employeeMasterResult"></div>
+<div id="employeeList" style="margin-top:12px"></div>
+</div>
+</section>
+
 <section id="calc">
 <div class="card"><h2>給与計算・保存｜V74.2統合版</h2>
 <div class="grid">
@@ -738,9 +765,86 @@ function loadSettings(){let c=read(K.company,{});coName.value=c.name||'';payday.
 function exportCSV(kind){let rows=[];if(kind==='month'){let m=ledgerMonth.value;rows=histories().filter(r=>r.payrollMonth===m)}else{let y=String(annualYear.value);rows=histories().filter(r=>String(r.payrollMonth||'').startsWith(y))}if(!rows.length){alert('出力対象がありません。');return}let head=['給与年月','従業員ID','氏名','総支給','社会保険','雇用保険','源泉所得税','住民税','差引支給額'];let body=rows.map(r=>[r.payrollMonth,r.employeeId,r.employeeName,r.gross,r.socialInsurance,r.employmentInsurance,r.withholdingTax,r.residentTax,r.netPay]);let csv='\ufeff'+[head,...body].map(a=>a.map(v=>`"${String(v??'').replace(/"/g,'""')}"`).join(',')).join('\n');let b=new Blob([csv],{type:'text/csv;charset=utf-8'}),u=URL.createObjectURL(b),a=document.createElement('a');a.href=u;a.download=`nara_payroll_${kind}_${new Date().toISOString().slice(0,10)}.csv`;a.click();URL.revokeObjectURL(u)}
 function backup(){let keys=[...K.emp,...K.std,...K.items,K.hist[0],K.company,K.ye,K.tc,K.ws,K.cal,K.pl,K.plb,K.att,K.socialStatus,K.bonus,K.bank,K.audit,K.users,K.labor];let obj={version:'V74',createdAt:new Date().toISOString()};keys.forEach(k=>{let v=localStorage.getItem(k);if(v!==null)obj[k]=v});let b=new Blob([JSON.stringify(obj,null,2)],{type:'application/json'}),u=URL.createObjectURL(b),a=document.createElement('a');a.href=u;a.download='nara_payroll_V74_backup.json';a.click();URL.revokeObjectURL(u)}
 function restore(inp){let f=inp.files[0];if(!f)return;let r=new FileReader();r.onload=()=>{try{let o=JSON.parse(r.result);for(const k of Object.keys(o))if(k!=='version'&&k!=='createdAt')localStorage.setItem(k,o[k]);alert('復元しました。画面を再読み込みします。');location.reload()}catch(e){alert('JSONが正しくありません。')}};r.readAsText(f)}
+
+function employeeMasterList(){
+  let x=first(K.emp,[]);
+  if(!Array.isArray(x)) x=Object.values(x||{});
+  return x;
+}
+function saveEmployeeMaster(){
+  const name=eName.value.trim();
+  if(!name){alert('氏名を入力してください。');return;}
+  let arr=employeeMasterList();
+  let id=eId.value.trim() || (crypto.randomUUID ? crypto.randomUUID() : ('EMP-'+Date.now()));
+  let rec={
+    employeeId:id,
+    name:name,
+    employeeName:name,
+    birthDate:eBirth.value,
+    hireDate:eHire.value,
+    leaveDate:eLeave.value,
+    birth:eBirth.value,
+    hire:eHire.value,
+    leave:eLeave.value,
+    type:eType.value,
+    deps:Number(eDeps.value)||0,
+    spouse:eSpouse.value,
+    heiEligible:eHeiEligible.value,
+    social:eSocial.value,
+    employment:eEmployment.value,
+    socialRem:Number(eSocialRem.value)||0,
+    updatedAt:new Date().toISOString()
+  };
+  let i=arr.findIndex(x=>String(empId(x))===String(id));
+  if(i>=0) arr[i]=rec; else arr.push(rec);
+  save(K.emp[0],arr);
+  loadEmpSelects(); populateTcEmployees(); populateWorkSettings(); populateCalendarEmployees(); populatePaidLeaveEmployees(); populateAttendanceEmployees(); populateAdvancedEmployees();
+  renderEmployeeMaster();
+  clearEmployeeMaster();
+  employeeMasterResult.innerHTML='<p class="ok">従業員マスターを保存しました。</p>';
+}
+function editEmployeeMaster(id){
+  const e=employeeMasterList().find(x=>String(empId(x))===String(id));
+  if(!e)return;
+  eId.value=empId(e);
+  eName.value=empName(e);
+  eBirth.value=e.birthDate||e.birth||'';
+  eHire.value=e.hireDate||e.hire||'';
+  eLeave.value=e.leaveDate||e.leave||'';
+  eType.value=e.type||'monthly';
+  eDeps.value=Number(e.deps)||0;
+  eSpouse.value=e.spouse||'no';
+  eHeiEligible.value=e.heiEligible||'no';
+  eSocial.value=e.social||'yes';
+  eEmployment.value=e.employment||'yes';
+  eSocialRem.value=Number(e.socialRem)||0;
+  location.hash='employees';
+  document.querySelector('#nav [data-s="employees"]')?.click();
+}
+function deleteEmployeeMaster(id){
+  if(!confirm('この従業員を削除しますか？'))return;
+  let arr=employeeMasterList().filter(x=>String(empId(x))!==String(id));
+  save(K.emp[0],arr);
+  loadEmpSelects(); populateTcEmployees(); populateWorkSettings(); populateCalendarEmployees(); populatePaidLeaveEmployees(); populateAttendanceEmployees(); populateAdvancedEmployees();
+  renderEmployeeMaster();
+}
+function clearEmployeeMaster(){
+  eId.value=''; eName.value=''; eBirth.value=''; eHire.value=''; eLeave.value='';
+  eType.value='monthly'; eDeps.value=0; eSpouse.value='no'; eHeiEligible.value='no';
+  eSocial.value='yes'; eEmployment.value='yes'; eSocialRem.value=300000;
+}
+function renderEmployeeMaster(){
+  const arr=employeeMasterList();
+  employeeList.innerHTML=arr.length
+    ? '<div class="tableWrap"><table><thead><tr><th>ID</th><th>氏名</th><th>生年月日</th><th>入社日</th><th>給与形態</th><th>社保</th><th>雇保</th><th>操作</th></tr></thead><tbody>'+
+      arr.map(e=>`<tr><td>${htmlEsc(empId(e))}</td><td>${htmlEsc(empName(e))}</td><td>${htmlEsc(e.birthDate||e.birth||'')}</td><td>${htmlEsc(e.hireDate||e.hire||'')}</td><td>${e.type==='hourly'?'時給':'月給'}</td><td>${e.social==='no'?'未加入':'加入'}</td><td>${e.employment==='no'?'未加入':'加入'}</td><td><button class="btn secondary" onclick="editEmployeeMaster('${String(empId(e)).replace(/'/g,"&#39;")}')">編集</button> <button class="btn danger" onclick="deleteEmployeeMaster('${String(empId(e)).replace(/'/g,"&#39;")}')">削除</button></td></tr>`).join('')+
+      '</tbody></table></div>'
+    : '<p class="note">従業員はまだ登録されていません。</p>';
+}
+
 function init(){document.querySelectorAll('#nav [data-s]').forEach(b=>b.onclick=()=>{document.querySelectorAll('section').forEach(s=>s.classList.remove('activeSection'));let target=document.getElementById(b.dataset.s);if(target)target.classList.add('activeSection');document.querySelectorAll('#nav [data-s]').forEach(x=>x.classList.remove('active'));b.classList.add('active')});
 let now=new Date(),ym=now.toISOString().slice(0,7);for(const id of ['payMonth','ledgerMonth','socialMonth','tcMonth','calMonth','attMonth','dashMonth','bankMonth'])document.getElementById(id).value=ym; document.getElementById('plYear').value=new Date().getFullYear(); document.getElementById('plDate').value=new Date().toISOString().slice(0,10); document.getElementById('tcDate').value=new Date().toISOString().slice(0,10); document.getElementById('calDate').value=new Date().toISOString().slice(0,10);
-stdOptions(document.getElementById('std'));stdOptions(document.getElementById('socialStd'));loadEmpSelects(); populateTcEmployees(); populateWorkSettings(); populateCalendarEmployees(); populatePaidLeaveEmployees(); populateAttendanceEmployees(); populateAdvancedEmployees(); loadSettings();refreshSlip(); renderAudit();
+stdOptions(document.getElementById('std'));stdOptions(document.getElementById('socialStd'));loadEmpSelects(); populateTcEmployees(); populateWorkSettings(); populateCalendarEmployees(); populatePaidLeaveEmployees(); populateAttendanceEmployees(); populateAdvancedEmployees(); renderEmployeeMaster(); loadSettings();refreshSlip(); renderAudit();
 emp.onchange=loadEmployee;payMonth.onchange=loadEmployee;socialStd.onchange=socialScreen;careMode.onchange=socialScreen;socialMonth.onchange=socialScreen;
 let hash=(location.hash||'').slice(1);let firstTab=document.querySelector('#nav [data-s]');let startTab=(hash&&document.querySelector(`#nav [data-s='${hash}']`))||firstTab;if(startTab)startTab.click();loadEmployee();socialScreen();renderTimecards();}
 init();
