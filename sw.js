@@ -1,4 +1,4 @@
-const CACHE = 'nara-payroll-v75-v2';
+const CACHE = 'nara-payroll-v75-v3';
 const ASSETS = [
   './',
   './index.html',

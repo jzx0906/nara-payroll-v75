@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>奈良県 総合労務・給与管理システム V75.1</title>
+<title>奈良県 総合労務・給与管理システム V75.2</title>
 <style>
 :root{--bg:#f5f7fa;--card:#fff;--ink:#172033;--muted:#667085;--line:#d9dee7;--accent:#2457d6;--good:#0b7a45;--warn:#9a6500;--bad:#b42318}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue","Noto Sans JP",Arial,sans-serif}
@@ -31,7 +31,7 @@ button.danger{background:#b42318!important;color:#fff!important;border-color:#b4
 <meta name="theme-color" content="#172033">
 </head>
 <body>
-<header><h1>奈良県 総合労務・給与管理システム V75.1</h1><small>V74.2ベース｜総合労務・給与管理システム</small></header>
+<header><h1>奈良県 総合労務・給与管理システム V75.2</h1><small>V74.2ベース｜総合労務・給与管理システム｜V75.2</small></header>
 <nav id="nav"><a class="navTab" data-s="employees" href="#employees">従業員マスター</a>
 <a class="navTab" data-s="calc" href="#calc">給与計算</a><a class="navTab" data-s="dashboard" href="#dashboard">V74 ダッシュボード</a><a class="navTab" data-s="labor" href="#labor">V64 36協定</a><a class="navTab" data-s="socialm" href="#socialm">V65-66 社保</a><a class="navTab" data-s="bonusm" href="#bonusm">V67 賞与</a><a class="navTab" data-s="bank" href="#bank">V68 振込</a><a class="navTab" data-s="taxdocs" href="#taxdocs">V69-70 税務</a><a class="navTab" data-s="privacy" href="#privacy">V71-73 管理</a><a class="navTab" data-s="dataManage" href="#dataManage">データ管理</a><a class="navTab" data-s="attendance" href="#attendance">月間勤怠</a><a class="navTab" data-s="paidleave" href="#paidleave">有給休暇</a><a class="navTab" data-s="calendar" href="#calendar">勤務カレンダー</a><a class="navTab" data-s="timecard" href="#timecard">タイムカード</a><a class="navTab" data-s="ledger" href="#ledger">V50 給与台帳</a>
 <a class="navTab" data-s="social" href="#social">V51 社会保険</a><a class="navTab" data-s="tax" href="#tax">V52 源泉税</a>
@@ -437,7 +437,29 @@ function payBreakdown(){
 function calcCore(e,month,base,allow,other,std,resident,taxType,spouse,deps,bonus){let pb=payBreakdown(); let gross=pb.basePay+pb.timePay+money(allow)+money(other)+money(pb.commute)+money(bonus);let care=ageAt(e,month);let sr=std||applicableStd(empId(e),month);let si=social(sr,care!==null?(care>=40&&care<=64):false,month);let sit=si.health+si.care+si.support+si.pension;let ei=money(gross*.005);let after=gross-sit-ei;let wt=taxType==='kou'?taxKou(after,spouse,deps):taxType==='otsu'?taxOtsu(after):0;let net=gross-sit-ei-wt-money(resident);return {gross,standardRemuneration:sr,health:si.health,care:si.care,support:si.support,pension:si.pension,socialInsurance:sit,employmentInsurance:ei,withholdingTax:wt,residentTax:money(resident),netPay:net,basePay:pb.basePay,timePay:pb.timePay,commute:pb.commute,timeDetail:pb.timeDetail||{},hours:pb.hours||{},overtimeHours:pb.hours?.overtime||0,overtimeOver60:pb.hours?.overtime60||0,holidayHours:pb.hours?.holiday||0,nightHours:pb.hours?.night||0,allowances:money(allow),otherPay:money(other),bonus:money(bonus),taxType,detail:{age:care}}}
 function populateTcEmployees(){let es=employees();for(const id of ['tcEmp','tcMonthEmp']){let s=document.getElementById(id);if(s)s.innerHTML=es.length?es.map(e=>`<option value="${empId(e)}">${htmlEsc(empName(e))} (${htmlEsc(empId(e))})</option>`).join(''):'<option value="">従業員マスターなし</option>'}}
 function loadEmployee(){let e=findEmp(document.getElementById('emp').value);if(!e)return;let m=document.getElementById('payMonth').value;document.getElementById('resident').value=e.residentTax??e.resident??0;document.getElementById('deps').value=e.dependents??e.deps??0;document.getElementById('spouse').value=e.spouse?'1':'0';let sr=applicableStd(empId(e),m);document.getElementById('std').value=String(sr); document.getElementById('payMethod').value='monthly'; document.getElementById('hourly').value=e.hourlyWage??e.hourly??0;let pi=payItems().filter(x=>String(x.employeeId??x.id??'')===empId(e)&&(!x.month||x.month===m)).sort((a,b)=>String(a.month||'').localeCompare(String(b.month||'')));if(pi.length){let p=pi[pi.length-1];document.getElementById('base').value=p.base??0;document.getElementById('allow').value=p.allow??p.allowances??0;document.getElementById('other').value=p.other??0}}
-function calculate(saveIt){let e=findEmp(document.getElementById('emp').value);if(!e){alert('従業員マスターがありません。');return}let m=document.getElementById('payMonth').value||new Date().toISOString().slice(0,7);let r=calcCore(e,m,+base.value,+allow.value,+other.value,+std.value,+resident.value,taxType.value,spouse.value==='1',+deps.value,+bonus.value);if(saveIt){let hs=histories();let rec={key:empId(e)+'_'+m,employeeId:empId(e),employeeName:empName(e),payrollMonth:m,savedAt:new Date().toISOString(),...r};let i=hs.findIndex(x=>x.key===rec.key);if(i>=0)hs[i]=rec;else hs.push(rec);save(K.hist[0],hs);refreshSlip();}renderCalc(r)}
+function calculate(saveIt){
+  let e=findEmp(document.getElementById('emp').value);
+  if(!e){alert('従業員マスターがありません。');return}
+  let m=document.getElementById('payMonth').value||new Date().toISOString().slice(0,7);
+  let r=calcCore(e,m,+base.value,+allow.value,+other.value,+std.value,+resident.value,taxType.value,spouse.value==='1',+deps.value,+bonus.value);
+  if(saveIt){
+    let hs=histories();
+    let rec={key:empId(e)+'_'+m,employeeId:empId(e),employeeName:empName(e),payrollMonth:m,savedAt:new Date().toISOString(),...r};
+    let i=hs.findIndex(x=>x.key===rec.key);
+    if(i>=0)hs[i]=rec;else hs.push(rec);
+    save(K.hist[0],hs);
+    refreshSlip();
+    slipSel.value=rec.key;
+    showSlip();
+    location.hash='slip';
+    let slipTab=document.querySelector('#nav [data-s="slip"]');
+    if(slipTab)slipTab.click();
+  }
+  renderCalc(r);
+  if(saveIt){
+    alert('給与を保存し、給与明細を作成しました。V53「給与明細」で確認できます。');
+  }
+}
 function renderCalc(r){let td=r.timeDetail||{};document.getElementById('calcResult').innerHTML=`<div class="card"><div class="kpis">
 <div class="kpi"><span>総支給</span><b>${yen(r.gross)}円</b></div><div class="kpi"><span>社会保険</span><b>${yen(r.socialInsurance)}円</b></div><div class="kpi"><span>雇用保険</span><b>${yen(r.employmentInsurance)}円</b></div><div class="kpi"><span>源泉所得税</span><b>${yen(r.withholdingTax)}円</b></div><div class="kpi"><span>住民税</span><b>${yen(r.residentTax)}円</b></div><div class="kpi"><span>差引支給</span><b>${yen(r.netPay)}円</b></div></div>
 <h3>V56 支給内訳</h3><div class="tableWrap"><table><tbody>
